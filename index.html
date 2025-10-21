@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Infernal Affairs — Shift 1 Prototype</title>
+<style>
+    /* ---------- Typeface & reset ---------- */
+    :root{
+        --bg: #d9d3c3; /* beige-gray */
+        --panel: #f7f5ed; /* paper tone */
+        --border: #5a4a42; /* warm brown-gray */
+        --accent: #d6452b; /* orange-red accent */
+        --hover: #ff944d; /* bright orange hover */
+        --muted: #6b6058;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+        font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: #2b2b2b;
+        overflow:hidden;
+        -webkit-font-smoothing:antialiased;
+        -moz-osx-font-smoothing:grayscale;
+        position:relative;
+    }
+
+    /* ---------- watermark tiled "Perpetua Systems" ---------- */
+    .watermark {
+        position:fixed;
+        top:0;left:0;right:0;bottom:0;
+        pointer-events:none;
+        z-index:0;
+        opacity:0.04;
+        color:#000;
+        display:grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
+        gap: 24px 40px;
+        padding: 40px;
+        transform: rotate(-8deg);
+        font-family: "Georgia", "Times New Roman", serif;
+        font-weight:700;
+        font-size:20px;
+        letter-spacing:2px;
+    }
+    .watermark span{
+        display:block;
+        transform: scale(1.2);
+    }
+
+    /* ---------- Desktop container ---------- */
+    .desktop {
+        position:relative;
+        width:100vw;height:100vh;
+        z-index:1;
+    }
+
+    /* ---------- Main app window ---------- */
+    .main-app {
+        position:absolute;
+        top:48px;left:48px;right:48px;bottom:96px;
+        background:var(--panel);
+        border:2px solid var(--border);
+        border-radius:6px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+        display:flex;
+        flex-direction:column;
+        overflow:hidden;
+    }
+
+    .main-app-header{
+        background: linear-gradient(#efe9df,#e7ded2);
+        border-bottom:2px solid rgba(90,74,66,0.06);
+        padding:12px 14px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        font-family: "Georgia", "Times New Roman", serif;
+        color:var(--muted);
+        letter-spacing:1px;
+    }
+    .main-app-title{
+        font-size:16px;
+        font-weight:700;
+        color:#2b2b2b;
+    }
+    .main-app-controls{display:flex;gap:8px;align-items:center}
+    .window-btn{
+        width:18px;height:18px;border-radius:3px;border:1px solid rgba(0,0,0,0.12);
+        display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;
+        background:#fff;
+    }
+    .window-btn.close{background:#d6452b;color:#fff;border-color:#a93a24}
+    .window-btn.min{background:#ffb85a;color:#fff;border-color:#c67b37}
+    .window-btn.max{background:#cbd3cf;color:#333}
+
+    .main-app-content{flex:1;display:flex;overflow:hidden;position:relative}
+
+    /* ---------- Queue sidebar ---------- */
+    .queue-sidebar{
+        width:320px;
+        border-right:2px solid rgba(90,74,66,0.06);
+        background:#efe9df;
+        display:flex;
+        flex-direction:column;
+    }
+    .queue-header{
+        padding:12px 14px;font-weight:700;color:var(--muted);font-size:13px;
+        border-bottom:1px solid rgba(90,74,66,0.04);
+    }
+    .queue-list{overflow:auto;padding-bottom:10px}
+    .worklist-item{
+        padding:12px 14px;border-bottom:1px solid rgba(90,74,66,0.03);
+        display:flex;gap:8px;align-items:center;cursor:pointer;background:transparent;
+    }
+    .worklist-item:hover{background:rgba(214,69,43,0.04)}
+    .worklist-item.selected{background:linear-gradient(90deg, rgba(214,69,43,0.06), transparent);border-left:4px solid var(--accent)}
+    .worklist-id{font-weight:700;color:#333;font-size:13px}
+    .worklist-name{font-size:12px;color:#544a43;margin-top:2px}
+    .status-badge{font-size:11px;padding:6px 8px;border-radius:10px;font-weight:700}
+    .status-pending{background:#fff3cd;color:#856404;border:1px solid #ffeaa7}
+    .status-progress{background:#fff0e6;color:#7a3a1f;border:1px solid #ffd8b8}
+    .status-submitted{background:#dfe8e3;color:#1f4a3a;border:1px solid #badbcc}
+
+    /* ---------- Soul viewer (left center) ---------- */
+    .soul-viewer{flex:1;padding:18px;overflow:auto;background:linear-gradient(#f7f5ed,#f2eee6)}
+    .soul-header{background:#fff;border:1px solid rgba(90,74,66,0.04);padding:12px;border-radius:6px;margin-bottom:14px}
+    .soul-id{font-size:11px;color:#6b6058;font-weight:700}
+    .soul-name{font-family:"Georgia",serif;font-size:20px;font-weight:700;color:#2b2b2b;margin-top:6px}
+    .soul-description{margin-top:12px;color:#473f38;line-height:1.6;font-size:14px}
+    .draggable{
+        background:#fff3cd;color:#7a4f2b;padding:2px 8px;border-radius:3px;border:1px solid #e7d2a9;cursor:grab;margin:0 4px;display:inline-block;
+        font-weight:600;user-select:none;font-size:13px;
+    }
+    .draggable:active{cursor:grabbing;opacity:0.7}
+
+    /* ---------- Form window (floating style but visible) ---------- */
+    .form-window {
+        width:540px;
+        border-left:2px solid rgba(90,74,66,0.06);
+        padding:18px;
+        background:linear-gradient(#f7f5ed,#fdfbf8);
+        overflow:auto;
+    }
+    .form-header h2{font-family:"Georgia",serif;font-size:18px;color:#2b2b2b;margin-bottom:6px}
+    .form-section{margin-top:10px;margin-bottom:18px}
+    .form-section h3{font-family:"Georgia",serif;font-size:12px;color:#544a43;margin-bottom:8px;letter-spacing:1px}
+    .form-field{margin-bottom:12px}
+    .form-field label{display:block;font-weight:700;color:#6b6058;margin-bottom:6px;font-size:12px}
+    .drop-zone{
+        min-height:44px;padding:10px;border-radius:6px;border:2px dashed rgba(90,74,66,0.14);
+        background:#fff;color:#9a8f86;font-size:13px;display:flex;align-items:center;
+    }
+    .drop-zone.drag-over{background:linear-gradient(#fff8f2,#fff);border-color:var(--hover)}
+    .drop-zone.filled{border-style:solid;border-color:#9fcf9b;background:#fbfff9;color:#333}
+    .dropped-item{display:inline-flex;padding:6px 10px;border-radius:6px;background:#f1f8ee;border:1px solid #d4e9c9}
+    .remove-item{margin-left:8px;cursor:pointer;color:#a23a3a;font-weight:800}
+
+    .department-select{width:100%;padding:10px;border-radius:6px;border:1px solid rgba(90,74,66,0.12);font-size:13px}
+    .form-actions{display:flex;gap:10px;margin-top:16px}
+    .btn{
+        padding:10px 16px;border-radius:6px;border:1px solid rgba(0,0,0,0.06);cursor:pointer;background:var(--accent);color:#fff;font-weight:700;
+    }
+    .btn:hover{background:var(--hover)}
+    .btn-secondary{background:#ffffff;color:#333;border:1px solid rgba(90,74,66,0.08)}
+
+    /* ---------- Taskbar ---------- */
+    .taskbar{
+        position:absolute;left:0;right:0;bottom:0;height:72px;background:#2f2b2a;border-top:3px solid var(--border);display:flex;align-items:center;gap:14px;padding:8px 18px;
+        box-shadow:0 -6px 18px rgba(0,0,0,0.35);z-index:2000;
+    }
+    .taskbar-btn{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:6px;background:#efe9df;border:1px solid rgba(90,74,66,0.06);cursor:pointer;font-weight:700}
+    .taskbar-btn:hover{background:linear-gradient(#fff,#f5efe4)}
+    .taskbar-btn .icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:4px;background:#fff;border:1px solid rgba(90,74,66,0.04)}
+
+    /* blinking mail */
+    .blinking{animation:mailBlink 1s infinite}
+    @keyframes mailBlink{0%{box-shadow:0 0 0 0 rgba(214,69,43,0.0)}50%{box-shadow:0 0 10px 4px rgba(255,148,77,0.12)}100%{box-shadow:0 0 0 0 rgba(214,69,43,0)}}
+
+    /* ---------- Shift info panel ---------- */
+    .shift-info{
+        position:absolute;top:12px;right:12px;background:var(--panel);border:1px solid var(--border);padding:12px;border-radius:6px;z-index:1500;
+        box-shadow:0 6px 16px rgba(0,0,0,0.15);font-size:13px;color:#433a34;
+    }
+    .shift-info h2{font-family:"Georgia",serif;color:#2b2b2b;margin-bottom:6px;font-size:15px}
+    .shift-info p{color:#544a43;font-size:13px;margin:6px 0}
+
+    /* ---------- Modal ---------- */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;z-index:4000}
+    .modal.active{display:flex}
+    .modal-content{background:#fff;padding:24px;border-radius:8px;border:2px solid var(--border);width:92%;max-width:640px}
+    .modal-header{font-family:"Georgia",serif;font-size:18px;margin-bottom:8px}
+    .modal-body{color:#4b433f;line-height:1.6;margin-bottom:12px}
+
+    /* ---------- small responsive fixes ---------- */
+    @media (max-width:1000px){
+        .main-app{top:28px;left:20px;right:20px;bottom:120px}
+        .queue-sidebar{width:300px}
+        .form-window{display:none}
+    }
+</style>
+</head>
+<body>
+    <!-- watermark tiles -->
+    <div class="watermark" id="watermark"></div>
+
+    <div class="desktop" id="desktopRoot">
+        <!-- Shift Info -->
+        <div class="shift-info">
+            <h2>SHIFT <span id="currentShift">1</span></h2>
+            <p>Souls Processed: <strong id="soulsProcessed">0</strong>/<span id="totalSouls">6</span></p>
+            <p>Accuracy: <strong id="accuracy">-</strong></p>
+        </div>
+
+        <!-- Main window -->
+        <div class="main-app" role="application" aria-label="Soul Processing System">
+            <div class="main-app-header">
+                <div class="main-app-title">Work • Perpetua — Soul Processing System</div>
+                <div class="main-app-controls">
+                    <div class="window-btn min">−</div>
+                    <div class="window-btn max">□</div>
+                    <div class="window-btn close">×</div>
+                </div>
+            </div>
+
+            <div class="main-app-content">
+                <aside class="queue-sidebar">
+                    <div class="queue-header">Processing Queue</div>
+                    <div class="queue-list" id="worklistContent"></div>
+                </aside>
+
+                <section class="soul-viewer" id="soulViewerContent">
+                    <div class="empty-state">
+                        <div style="font-size:48px;opacity:0.6">📄</div>
+                        <p style="color:#6b6058;margin-top:12px">Select a soul from the queue to view case file</p>
+                    </div>
+                </section>
+
+                <aside class="form-window" id="formWindowPanel" aria-hidden="true">
+                    <!-- Rendered form content (keeps same fields as before) -->
+                    <div class="form-header">
+                        <h2>FORM 666-B</h2>
+                        <div style="font-size:12px;color:#6b6058">Candidate Review & Department Assignment Form</div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Basic Information</h3>
+                        <div class="form-field">
+                            <label>Full Name <span style="color:var(--accent)">*</span></label>
+                            <div class="drop-zone" data-field="name">Drag and drop name here...</div>
+                        </div>
+                        <div class="form-field">
+                            <label>Date of Death <span style="color:var(--accent)">*</span></label>
+                            <div class="drop-zone" data-field="dateOfDeath">Drag and drop date of death here...</div>
+                        </div>
+                        <div class="form-field">
+                            <label>Cause of Death <span style="color:var(--accent)">*</span></label>
+                            <div class="drop-zone" data-field="causeOfDeath">Drag and drop cause of death here...</div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Background & History</h3>
+                        <div class="form-field">
+                            <label>Criminal Record</label>
+                            <div class="drop-zone" data-field="criminalRecord">Drag and drop criminal history here...</div>
+                        </div>
+                        <div class="form-field">
+                            <label>Sentence Justification <span style="color:var(--accent)">*</span></label>
+                            <div class="drop-zone" data-field="sentenceJustification">Drag and drop damnation reasoning here...</div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Candidate Profile Assessment</h3>
+                        <div class="form-field">
+                            <label>Personality Traits</label>
+                            <div class="drop-zone" data-field="traits">Drag and drop personality traits here...</div>
+                        </div>
+                        <div class="form-field">
+                            <label>Skills & Expertise</label>
+                            <div class="drop-zone" data-field="skills">Drag and drop skills here...</div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Department Assignment</h3>
+                        <div class="form-field">
+                            <label>Recommended Department <span style="color:var(--accent)">*</span></label>
+                            <select class="department-select" id="departmentSelect">
+                                <option value="">-- Select Department --</option>
+                                <option value="DR">Demon Relations (DR)</option>
+                                <option value="MA">Mortal Affairs (MA)</option>
+                                <option value="CA">Contracts & Acquisitions (C&A)</option>
+                                <option value="AD">Agony & Despair (A&D)</option>
+                                <option value="OC">Operations & Compliance (O&C)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn" onclick="submitForm()">Submit to Department</button>
+                        <button class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- Taskbar -->
+        <div class="taskbar" role="toolbar" aria-label="Taskbar">
+            <div class="taskbar-btn" id="workBtn" onclick="focusMain()">
+                <div class="icon">📋</div> Work
+            </div>
+            <div class="taskbar-btn" id="mailBtn" onclick="toggleEmailWindow()">
+                <div class="icon" id="mailIcon">📧</div> Hell-Mail
+            </div>
+            <div class="taskbar-btn" onclick="toggleFormPanel()">
+                <div class="icon">📝</div> Form 666-B
+            </div>
+            <div style="flex:1"></div>
+            <div style="color:#f6f1e9;font-weight:700;margin-right:12px">2:56 PM &nbsp;&nbsp; 6/6/6</div>
+        </div>
+
+        <!-- Email floating window (simple) -->
+        <div id="emailWindow" style="position:fixed;top:64px;left:84px;width:720px;height:520px;background:var(--panel);border:2px solid var(--border);border-radius:6px;box-shadow:0 10px 36px rgba(0,0,0,0.28);display:none;z-index:3000;overflow:hidden">
+            <div style="background:linear-gradient(#efe9df,#e7ded2);padding:10px 12px;font-family:Georgia,serif;font-weight:700;display:flex;justify-content:space-between;align-items:center">
+                <div>📧 Hell-Mail</div>
+                <div><button onclick="closeEmailWindow()" style="background:var(--accent);color:#fff;padding:6px 8px;border-radius:6px;border:none;cursor:pointer">Close</button></div>
+            </div>
+            <div style="display:flex;height:calc(100% - 44px)">
+                <div id="emailList" style="width:260px;border-right:1px solid rgba(90,74,66,0.04);overflow:auto;padding:10px"></div>
+                <div id="emailView" style="flex:1;padding:12px;overflow:auto"></div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header" id="modalHeader">Title</div>
+                <div class="modal-body" id="modalBody">Body</div>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                    <button class="btn" id="modalOk">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+/* ---------- Tiny watermark tiling ---------- */
+(function renderWatermark(){
+    const wm = document.getElementById('watermark');
+    const cols = Math.ceil(window.innerWidth / 240);
+    const rows = Math.ceil(window.innerHeight / 120);
+    const total = cols * rows;
+    const fragment = document.createDocumentFragment();
+    for(let i=0;i<total;i++){
+        const s = document.createElement('span');
+        s.textContent = "PERPETUA SYSTEMS";
+        fragment.appendChild(s);
+    }
+    wm.appendChild(fragment);
+})();
+
+/* ---------- Game state (kept consistent with your prior logic) ---------- */
+let gameState = {
+    currentShift: 1,
+    currentSoulId: null,
+    souls: [],
+    processedSouls: 0,
+    correctAssignments: 0,
+    formData: {},
+    emailUnread: true
+};
+
+/* ---------- Sample soul DB (shift1) ---------- */
+const soulDatabase = {
+    shift1: [
+        {
+            id: 'S1-001', name:'Marcus Blackwell', correctDepartment:'CA',
+            description: `<span class="draggable" data-type="name" data-value="Marcus Blackwell">Marcus Blackwell</span> arrived on <span class="draggable" data-type="dateOfDeath" data-value="March 15, 2024">March 15, 2024</span> after <span class="draggable" data-type="causeOfDeath" data-value="heart attack during hostile takeover meeting">heart attack during a hostile takeover meeting</span>. Records: <span class="draggable" data-type="criminalRecord" data-value="insider trading, fraud">insider trading, fraud</span>. Judgment: <span class="draggable" data-type="sentenceJustification" data-value="financial manipulation and market corruption">financial manipulation</span>. Traits: <span class="draggable" data-type="traits" data-value="ruthless ambition">ruthless ambition</span>. Skills: <span class="draggable" data-type="skills" data-value="contract negotiation">contract negotiation</span>.`,
+            requiredFields:['name','dateOfDeath','causeOfDeath','criminalRecord','sentenceJustification','traits','skills']
+        },
+        {
+            id:'S1-002', name:'Jennifer Wu', correctDepartment:'DR',
+            description: `Case: <span class="draggable" data-type="name" data-value="Jennifer Wu">Jennifer Wu</span>, <span class="draggable" data-type="dateOfDeath" data-value="July 22, 2024">July 22, 2024</span>, <span class="draggable" data-type="causeOfDeath" data-value="overdose of prescription medications">intentional overdose</span>. Records: <span class="draggable" data-type="criminalRecord" data-value="emotional manipulation, blackmail">emotional manipulation</span>. Judgment: <span class="draggable" data-type="sentenceJustification" data-value="psychological abuse">psychological abuse</span>. Traits: <span class="draggable" data-type="traits" data-value="socially manipulative">socially manipulative</span>. Skills: <span class="draggable" data-type="skills" data-value="conflict mediation">conflict mediation</span>.`,
+            requiredFields:['name','dateOfDeath','causeOfDeath','criminalRecord','sentenceJustification','traits','skills']
+        },
+        {
+            id:'S1-003', name:'Viktor Petrov', correctDepartment:'OC',
+            description: `Intake: <span class="draggable" data-type="name" data-value="Viktor Petrov">Viktor Petrov</span>, <span class="draggable" data-type="dateOfDeath" data-value="November 3, 2023">November 3, 2023</span>, <span class="draggable" data-type="causeOfDeath" data-value="execution by firing squad">execution by firing squad</span>. Records: <span class="draggable" data-type="criminalRecord" data-value="war crimes, torture">war crimes</span>. Judgment: <span class="draggable" data-type="sentenceJustification" data-value="abuse of authority">abuse of authority</span>. Traits: <span class="draggable" data-type="traits" data-value="authoritarian">authoritarian</span>. Skills: <span class="draggable" data-type="skills" data-value="enforcement">enforcement</span>.`,
+            requiredFields:['name','dateOfDeath','causeOfDeath','criminalRecord','sentenceJustification','traits','skills']
+        },
+        {
+            id:'S1-004', name:'Dr. Sarah Chen', correctDepartment:'AD',
+            description: `<span class="draggable" data-type="name" data-value="Dr. Sarah Chen">Dr. Sarah Chen</span>, <span class="draggable" data-type="dateOfDeath" data-value="January 8, 2025">January 8, 2025</span>, <span class="draggable" data-type="causeOfDeath" data-value="laboratory accident">laboratory accident</span>. Records: <span class="draggable" data-type="criminalRecord" data-value="illegal human experimentation">illegal human experimentation</span>. Judgment: <span class="draggable" data-type="sentenceJustification" data-value="deliberate infliction of psychological trauma">deliberate psychological torture</span>. Traits: <span class="draggable" data-type="traits" data-value="creative sadism">creative sadism</span>. Skills: <span class="draggable" data-type="skills" data-value="experimental design">experimental design</span>.`,
+            requiredFields:['name','dateOfDeath','causeOfDeath','criminalRecord','sentenceJustification','traits','skills']
+        },
+        {
+            id:'S1-005', name:'Robert Kane', correctDepartment:'MA',
+            description: `<span class="draggable" data-type="name" data-value="Robert Kane">Robert Kane</span>, <span class="draggable" data-type="dateOfDeath" data-value="September 30, 2024">September 30, 2024</span>, <span class="draggable" data-type="causeOfDeath" data-value="assassination">assassination</span>. Records: <span class="draggable" data-type="criminalRecord" data-value="cult leadership, extortion">cult leadership</span>. Judgment: <span class="draggable" data-type="sentenceJustification" data-value="mass manipulation">mass manipulation</span>. Traits: <span class="draggable" data-type="traits" data-value="charismatic">charismatic</span>. Skills: <span class="draggable" data-type="skills" data-value="mass persuasion">mass persuasion</span>.`,
+            requiredFields:['name','dateOfDeath','causeOfDeath','criminalRecord','sentenceJustification','traits','skills']
+        },
+        {
+            id:'S1-006', name:'Linda Martinez', correctDepartment:'DR',
+            description: `<span class="draggable" data-type="name" data-value="Linda Martinez">Linda Martinez</span>, <span class="draggable" data-type="dateOfDeath" data-value="December 12, 2024">December 12, 2024</span>, <span class="draggable" data-type="causeOfDeath" data-value="car accident">car accident</span>. Records: <span class="draggable" data-type="criminalRecord" data-value="exploitation of patients">exploitation of patients</span>. Judgment: <span class="draggable" data-type="sentenceJustification" data-value="betrayal of trust">betrayal of trust</span>. Traits: <span class="draggable" data-type="traits" data-value="false empathy">false empathy</span>. Skills: <span class="draggable" data-type="skills" data-value="counseling">counseling</span>.`,
+            requiredFields:['name','dateOfDeath','causeOfDeath','criminalRecord','sentenceJustification','traits','skills']
+        },
+    ]
+};
+
+/* ---------- Initialization ---------- */
+function initGame(){
+    gameState.souls = soulDatabase.shift1.map(s => ({...s, status:'pending', formComplete:false}));
+    gameState.processedSouls = 0;
+    gameState.correctAssignments = 0;
+    gameState.formData = {};
+    renderWorklist();
+    loadShiftEmail();
+    document.getElementById('totalSouls').textContent = gameState.souls.length;
+    // start blinking mail icon
+    document.getElementById('mailBtn').classList.add('blinking');
+}
+
+/* ---------- Render worklist & queue ---------- */
+function renderWorklist(){
+    const container = document.getElementById('worklistContent');
+    container.innerHTML = '';
+    gameState.souls.forEach(soul=>{
+        const div = document.createElement('div');
+        div.className = 'worklist-item' + (gameState.currentSoulId===soul.id ? ' selected' : '');
+        div.onclick = ()=> selectSoul(soul.id);
+        div.innerHTML = `<div style="flex:1">
+            <div class="worklist-id">${soul.id}</div>
+            <div class="worklist-name">${soul.name}</div>
+        </div>
+        <div><span class="status-badge ${soul.status==='submitted' ? 'status-submitted' : soul.status==='progress' ? 'status-progress' : 'status-pending'}">${soul.status==='submitted' ? 'Submitted' : soul.status==='progress' ? 'In Progress' : 'Pending'}</span></div>`;
+        container.appendChild(div);
+    });
+    updateShiftInfo();
+}
+
+/* ---------- Soul selection & rendering ---------- */
+function selectSoul(id){
+    gameState.currentSoulId = id;
+    const soul = gameState.souls.find(s=>s.id===id);
+    if(soul.status==='pending') soul.status='progress';
+    renderWorklist();
+    renderSoulCard(soul);
+    clearForm();
+    openFormPanel();
+}
+
+function renderSoulCard(soul){
+    const viewer = document.getElementById('soulViewerContent');
+    viewer.innerHTML = '';
+    const card = document.createElement('div');
+    card.className = 'soul-header';
+    card.innerHTML = `<div class="soul-id">CASE FILE: ${soul.id}</div>
+        <div class="soul-name">${soul.name}</div>
+        <div class="soul-description" style="margin-top:12px">${soul.description}</div>`;
+    viewer.appendChild(card);
+
+    // initialize draggables
+    setTimeout(()=> {
+        const draggables = viewer.querySelectorAll('.draggable');
+        draggables.forEach(d=>{
+            d.setAttribute('draggable','true');
+            d.addEventListener('dragstart', handleDragStart);
+            d.addEventListener('dragend', handleDragEnd);
+        });
+    },10);
+}
+
+/* ---------- Drag & Drop ---------- */
+let draggedData = null;
+function handleDragStart(e){
+    const target = e.target;
+    draggedData = {type: target.dataset.type, value: target.dataset.value};
+    target.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+}
+function handleDragEnd(e){
+    e.target.classList.remove('dragging');
+}
+
+function setupDropZones(){
+    const zones = document.querySelectorAll('.drop-zone');
+    zones.forEach(z=>{
+        z.addEventListener('dragover', e=>{ e.preventDefault(); z.classList.add('drag-over')});
+        z.addEventListener('dragleave', e=>{ z.classList.remove('drag-over')});
+        z.addEventListener('drop', e=>{
+            e.preventDefault(); z.classList.remove('drag-over');
+            if(!draggedData) return;
+            const field = z.dataset.field;
+            if(!gameState.formData[gameState.currentSoulId]) gameState.formData[gameState.currentSoulId] = {};
+            gameState.formData[gameState.currentSoulId][field] = draggedData.value;
+            z.classList.add('filled');
+            z.innerHTML = `<span class="dropped-item">${escapeHtml(draggedData.value)}<span class="remove-item" onclick="removeDroppedItem('${field}', event)">✕</span></span>`;
+        });
+    });
+}
+
+/* ---------- Remove dropped ---------- */
+function removeDroppedItem(field, ev){
+    ev.stopPropagation();
+    const zone = document.querySelector(`.drop-zone[data-field="${field}"]`);
+    if(zone){
+        zone.classList.remove('filled');
+        const label = field.replace(/([A-Z])/g,' $1').toLowerCase();
+        zone.innerHTML = `Drag and drop ${label} here...`;
+    }
+    if(gameState.formData[gameState.currentSoulId]) delete gameState.formData[gameState.currentSoulId][field];
+}
+
+/* ---------- Form submit / validation ---------- */
+function submitForm(){
+    if(!gameState.currentSoulId){ showModal('Error','Select a soul first.'); return; }
+    const soul = gameState.souls.find(s=>s.id===gameState.currentSoulId);
+    const form = gameState.formData[gameState.currentSoulId] || {};
+    const dept = document.getElementById('departmentSelect').value;
+    const missing = [];
+    soul.requiredFields.forEach(f => { if(!form[f]) missing.push(f); });
+    if(!dept) missing.push('department');
+
+    if(missing.length){
+        const field = missing[0].replace(/([A-Z])/g,' $1').toLowerCase();
+        showModal('Missing Required Information', `Form 666-B is incomplete. Missing: <strong>${field}</strong>.<br><br>Request this data from DR Services?`, [
+            {text:'Report Missing Info', action: ()=>{ closeModal(); composeEmail(gameState.currentSoulId, field); openEmailWindow(); }},
+            {text:'Cancel', action: closeModal}
+        ]);
+        return;
+    }
+    const isCorrect = dept === soul.correctDepartment;
+    if(isCorrect) gameState.correctAssignments++;
+    soul.status='submitted'; soul.formComplete=true;
+    gameState.processedSouls++;
+    renderWorklist();
+    clearForm();
+    showModal('Form Submitted', `Soul <strong>${soul.id}</strong> submitted to <strong>${getDepartmentName(dept)}</strong>.`, [{text:'OK', action: ()=>{ closeModal(); if(gameState.processedSouls>=gameState.souls.length) showShiftComplete(); else { const next = gameState.souls.find(s=>s.status!=='submitted'); if(next) selectSoul(next.id); }}}]);
+}
+
+/* ---------- Utility ---------- */
+function getDepartmentName(code){
+    const map = {'DR':'Demon Relations','MA':'Mortal Affairs','CA':'Contracts & Acquisitions','AD':'Agony & Despair','OC':'Operations & Compliance'};
+    return map[code]||code;
+}
+function clearForm(){
+    document.querySelectorAll('.drop-zone').forEach(z=>{
+        z.classList.remove('filled');
+        const field = z.dataset.field;
+        z.innerHTML = `Drag and drop ${field.replace(/([A-Z])/g,' $1').toLowerCase()} here...`;
+    });
+    document.getElementById('departmentSelect').value = '';
+    if(gameState.currentSoulId) gameState.formData[gameState.currentSoulId] = {};
+}
+
+/* ---------- Email system (simple) ---------- */
+function loadShiftEmail(){
+    const list = document.getElementById('emailList');
+    list.innerHTML = '';
+    const first = document.createElement('div');
+    first.className = 'email-item unread';
+    first.style.padding = '10px';
+    first.innerHTML = `<div style="font-weight:700">Malphas (Director, Demon Relations)</div><div style="color:#5a4a42;margin-top:6px">SHIFT 1 - Orientation Protocol</div>`;
+    first.onclick = ()=> openEmail('shift1');
+    list.appendChild(first);
+
+    // add a few coworker jokey emails (non-essential)
+    const spam = document.createElement('div');
+    spam.className = 'email-item';
+    spam.style.padding='10px';
+    spam.innerHTML = `<div style="font-weight:700">Cecil (Floor 3)</div><div style="color:#5a4a42;margin-top:6px">Reminder: Do not take the last donut</div>`;
+    spam.onclick = ()=> openEmail('cecil1');
+    list.appendChild(spam);
+}
+
+function openEmail(id){
+    // stop blinking when open initial
+    document.getElementById('mailBtn').classList.remove('blinking');
+
+    const view = document.getElementById('emailView');
+    view.innerHTML = ''; // populate
+    if(id==='shift1'){
+        view.innerHTML = `<div style="font-family:Georgia,serif;font-weight:700;margin-bottom:6px">FROM: Malphas (Director)</div>
+        <div style="font-size:14px;color:#4b433f;line-height:1.6">
+        Welcome to Demon Relations Processing.
+        <ol style="margin-top:8px">
+            <li>Review each soul case file in your queue.</li>
+            <li>Populate Form 666-B by dragging required info from the case file.</li>
+            <li>Select the appropriate department for review.</li>
+            <li>Submit completed forms before the shift ends. Quota: <strong>6</strong> souls.</li>
+        </ol>
+        <p style="background:#fff3cd;padding:10px;border-left:4px solid #ffd27a;margin-top:12px"><strong>Important:</strong> All fields marked * are required. Missing info will delay processing.</p>
+        <p style="margin-top:12px;font-style:italic">— Malphas</p>
+        </div>`;
+    } else {
+        view.innerHTML = `<div style="font-weight:700">FROM: Coworker</div><div style="margin-top:8px;color:#4b433f">Just a small note. Please don't break the copier today.</div>`;
+    }
+}
+
+function openEmailWindow(){ document.getElementById('emailWindow').style.display='block'; document.getElementById('mailBtn').classList.remove('blinking'); }
+function closeEmailWindow(){ document.getElementById('emailWindow').style.display='none'; }
+
+/* ---------- Compose / Report (auto-draft flow) ---------- */
+function composeEmail(soulId, missingField){
+    openEmailWindow();
+    const view = document.getElementById('emailView');
+    view.innerHTML = `<div style="font-weight:700;margin-bottom:8px">To: DR-Services@perpetua.hel</div>
+    <div style="font-weight:700">Subject: Request for Clarification - ${soulId}</div>
+    <div style="margin-top:12px;color:#4b433f">Requesting missing information for processing Soul ${soulId}. Missing: <strong>${missingField}</strong>.<br><br>Please provide updated data so Form 666-B can be completed.<br><br>— Processing Division</div>
+    <div style="margin-top:18px"><button class="btn" onclick="sendEmail()">Send Request</button> <button class="btn btn-secondary" onclick="closeEmailWindow()">Cancel</button></div>`;
+    // ensure mail is visible as read action later
+}
+
+function sendEmail(){
+    closeEmailWindow();
+    showModal('Request Sent','Your request has been submitted to DR Services. Response incoming…', [{text:'OK', action: ()=>{ closeModal(); setTimeout(receiveEmailResponse, 1600); }}]);
+}
+
+/* ---------- Simulated DR Services response ---------- */
+function receiveEmailResponse(){
+    const soul = gameState.souls.find(s=>s.id === gameState.currentSoulId);
+    if(soul){
+        // for shift1 we simply mark as progress (this will be used later for corrupted/missing data)
+        soul.status = 'progress';
+        renderWorklist();
+    }
+    showModal('New Email','DR Services has responded. Missing information added to case file.', [{text:'View Case File', action: ()=>{ closeModal(); }}]);
+}
+
+/* ---------- Shift complete ---------- */
+function showShiftComplete(){
+    const accuracy = Math.round((gameState.correctAssignments / gameState.processedSouls) * 100) || 0;
+    const ok = accuracy >= 80;
+    const html = `<p><strong>Souls Processed:</strong> ${gameState.processedSouls}/${gameState.souls.length}</p>
+    <p><strong>Accuracy:</strong> ${accuracy}%</p>
+    <p style="margin-top:12px;padding:12px;border-radius:6px;background:${ok ? '#e8f6ea' : '#fdecea'};color:${ok ? '#155724' : '#7a2b2b'}">${ok ? '✓ PERFORMANCE: ACCEPTABLE' : '✗ PERFORMANCE: NEEDS IMPROVEMENT'}</p>
+    <p style="font-size:12px;color:#6b6058;margin-top:10px">Shift 2 (with corrupted/missing data) will expand these systems.</p>`;
+    showModal('SHIFT 1 COMPLETE', html, [{text:'End Shift', action: ()=>{ closeModal(); resetForNewShift(); }}]);
+}
+
+/* ---------- Modal helpers ---------- */
+function showModal(title,body,actions=[{text:'OK',action:closeModal}]){
+    const modal = document.getElementById('modal');
+    document.getElementById('modalHeader').textContent = title;
+    document.getElementById('modalBody').innerHTML = typeof body === 'string' ? body : '';
+    const ok = document.getElementById('modalOk');
+    ok.onclick = actions.length ? actions[0].action : closeModal;
+    modal.classList.add('active');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('active'); }
+
+/* ---------- Helpers / UI toggles ---------- */
+function openFormPanel(){ document.getElementById('formWindowPanel').setAttribute('aria-hidden','false'); }
+function toggleFormPanel(){ const el = document.getElementById('formWindowPanel'); const v = el.getAttribute('aria-hidden')==='false'; el.setAttribute('aria-hidden', v ? 'true' : 'false'); }
+function focusMain(){ window.scrollTo(0,0); }
+function toggleEmailWindow(){ const el = document.getElementById('emailWindow'); if(getComputedStyle(el).display === 'none') openEmailWindow(); else closeEmailWindow(); }
+
+/* ---------- Small util ---------- */
+function updateShiftInfo(){
+    document.getElementById('soulsProcessed').textContent = gameState.processedSouls;
+    document.getElementById('totalSouls').textContent = gameState.souls.length;
+    document.getElementById('accuracy').textContent = gameState.processedSouls ? Math.round((gameState.correctAssignments/gameState.processedSouls)*100)+'%' : '-';
+}
+function resetForNewShift(){
+    initGame();
+    document.getElementById('soulViewerContent').innerHTML = `<div style="font-size:48px;opacity:0.6">📄</div><p style="color:#6b6058;margin-top:12px">Select a soul from the queue to view case file</p>`;
+}
+
+/* ---------- safe HTML escape for inserted values ---------- */
+function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+}
+
+/* ---------- init on DOM ready ---------- */
+document.addEventListener('DOMContentLoaded', ()=>{
+    initGame();
+    setupDropZones();
+
+    // open email at start after a beat (simulate blinking)
+    setTimeout(()=> {
+        // show a small prompt for unread mail when page loads (mail icon blinks until opened)
+        // nothing else — mail open will remove blinking
+    },400);
+});
+</script>
+</body>
+</html>
