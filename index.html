@@ -148,6 +148,9 @@
         <div class="taskbar-btn" onclick="toggleFormPanel()">
             <div class="icon">📝</div> Form 666-B
         </div>
+        <div class="taskbar-btn" id="manualBtn" onclick="toggleManualWindow()">
+            <div class="icon">📘</div> Manual
+        </div>
         <div style="flex:1"></div>
         <div style="color:#f6f1e9;font-weight:700;margin-right:12px">2:56 PM &nbsp;&nbsp; 6/6/6</div>
     </div>
@@ -191,6 +194,49 @@
         </div>
         <div class="window-resize-handle" onmousedown="startResize(event, 'modal')"></div>
     </div>
+    </div>
+
+
+    <!-- Manual Viewer floating window -->
+    <div id="manualWindow" class="floating-window"
+        style="position:fixed;top:120px;left:180px;width:980px;height:640px;display:none;">
+        <div class="window-titlebar" id="manualWindowTitlebar">
+            <div class="window-title">📘 Manual — Business Process</div>
+            <div class="window-controls">
+                <div class="window-btn min" onclick="minimizeWindow('manualWindow')">−</div>
+                <div class="window-btn max" onclick="maximizeWindow('manualWindow')">□</div>
+                <div class="window-btn close" onclick="closeManualWindow()">×</div>
+            </div>
+        </div>
+        <div class="manual-viewer">
+            <div class="manual-toolbar">
+                <div class="toolbar-group">
+                    <button class="tool-btn" title="Previous Page" id="manualPrevBtn">◀</button>
+                    <span class="page-indicator">Page <input id="manualPageInput" type="number" min="1" value="1"> of
+                        <span id="manualTotalPages">1</span></span>
+                    <button class="tool-btn" title="Next Page" id="manualNextBtn">▶</button>
+                </div>
+                <div class="toolbar-group">
+                    <button class="tool-btn" title="Zoom Out" id="manualZoomOut">−</button>
+                    <span class="zoom-display" id="manualZoomDisplay">100%</span>
+                    <button class="tool-btn" title="Zoom In" id="manualZoomIn">＋</button>
+                </div>
+                <div class="toolbar-group right">
+                    <button class="tool-btn" title="Download (not available)" disabled>⤓</button>
+                    <button class="tool-btn" title="Print" id="manualPrintBtn">🖨</button>
+                </div>
+            </div>
+            <div class="manual-body">
+                <aside class="manual-sidebar">
+                    <div class="sidebar-header">Outline</div>
+                    <div id="manualOutline" class="sidebar-list"></div>
+                </aside>
+                <main class="manual-canvas">
+                    <div id="manualPages" class="pages-wrap"></div>
+                </main>
+            </div>
+        </div>
+        <div class="window-resize-handle" onmousedown="startResize(event, 'manualWindow')"></div>
     </div>
 
 

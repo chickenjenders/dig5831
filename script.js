@@ -636,10 +636,264 @@ document.addEventListener('DOMContentLoaded', () => {
   makeWindowDraggable('formWindow');
   makeWindowDraggable('modal');
   makeWindowDraggable('main-app');
+  makeWindowDraggable('manualWindow');
 
   // open email at start after a beat (simulate blinking)
   setTimeout(() => {
     // show a small prompt for unread mail when page loads (mail icon blinks until opened)
     // nothing else — mail open will remove blinking
   }, 400);
+
+  // Manual toolbar wiring
+  const prev = document.getElementById('manualPrevBtn');
+  const next = document.getElementById('manualNextBtn');
+  const zin = document.getElementById('manualZoomIn');
+  const zout = document.getElementById('manualZoomOut');
+  const pageInput = document.getElementById('manualPageInput');
+  const printBtn = document.getElementById('manualPrintBtn');
+  if (prev) prev.addEventListener('click', manualPrevPage);
+  if (next) next.addEventListener('click', manualNextPage);
+  if (zin) zin.addEventListener('click', () => setManualZoom(manualState.zoom + 0.1));
+  if (zout) zout.addEventListener('click', () => setManualZoom(manualState.zoom - 0.1));
+  if (pageInput) pageInput.addEventListener('change', () => gotoManualPage(parseInt(pageInput.value || '1', 10)));
+  if (printBtn) printBtn.addEventListener('click', () => window.print());
 });
+
+/* ---------- Manual (PDF-like) Viewer ---------- */
+let manualState = {
+  pages: [],
+  currentPage: 1,
+  zoom: 1.0
+};
+
+function buildManualPages() {
+  const pages = [];
+  // Cover page
+  pages.push({
+    title: 'Business Process Manual',
+    html: `
+      <h1>Perpetua Systems — Business Process Manual</h1>
+      <p style="margin-top:16px">This manual describes intake, evaluation, and departmental assignment protocols for soul processing. Refer to this during your shift for policy and department responsibilities.</p>
+      <h2 style="margin-top:28px">Contents</h2>
+      <ol style="margin-left:18px">
+        <li>Demon Relations (DR)</li>
+        <li>Mortal Affairs (MA)</li>
+        <li>Contracts &amp; Acquisitions (C&amp;A)</li>
+        <li>Agony &amp; Despair (A&amp;D)</li>
+        <li>Operations &amp; Compliance (O&amp;C)</li>
+      </ol>
+      <p style="position:absolute;bottom:56px;color:#777;font-size:12px">Document Class: Internal — Rev. 666.1</p>
+    `
+  });
+
+  // Department pages
+  pages.push({
+    title: 'Demon Relations (DR)',
+    html: `
+      <h1>Demon Relations (DR)</h1>
+      <p>Manages inter-demon diplomacy, dispute mediation, and morale programs. Suitable candidates excel at manipulation with a veneer of charm.</p>
+      <h2>Candidate Profile</h2>
+      <ul>
+        <li>Traits: socially manipulative, charismatic, persuasive.</li>
+        <li>Background: influence operations, counseling-as-control, soft-power abuse.</li>
+      </ul>
+      <h2>Key Duties</h2>
+      <ul>
+        <li>Conflict mediation across circles.</li>
+        <li>Messaging alignment with Directorate decrees.</li>
+        <li>Rumor shaping and perception audits.</li>
+      </ul>
+      <h2>Red Flags</h2>
+      <ul>
+        <li>Aversion to collaboration.</li>
+        <li>Overt brutality (redirect to A&amp;D or O&amp;C).</li>
+      </ul>
+    `
+  });
+
+  pages.push({
+    title: 'Mortal Affairs (MA)',
+    html: `
+      <h1>Mortal Affairs (MA)</h1>
+      <p>Oversees ongoing mortal-world influences and posthumous entanglements. Ideal for mass persuasion experts and cult logistics personnel.</p>
+      <h2>Candidate Profile</h2>
+      <ul>
+        <li>Traits: charismatic, crowd dynamics savvy.</li>
+        <li>Background: propaganda, cult leadership, large-scale manipulation.</li>
+      </ul>
+      <h2>Key Duties</h2>
+      <ul>
+        <li>Shaping mortal narratives to meet quarterly perdition OKRs.</li>
+        <li>Coordinating influence cells and proxy organizations.</li>
+      </ul>
+      <h2>Red Flags</h2>
+      <ul>
+        <li>Limited scope to one-on-one manipulation only (consider DR).</li>
+      </ul>
+    `
+  });
+
+  pages.push({
+    title: 'Contracts & Acquisitions (C&A)',
+    html: `
+      <h1>Contracts &amp; Acquisitions (C&amp;A)</h1>
+      <p>Handles pacts, soul instruments, and asset seizures. Prior experience with fine print weaponization preferred.</p>
+      <h2>Candidate Profile</h2>
+      <ul>
+        <li>Traits: ruthless ambition, detail obsession.</li>
+        <li>Background: fraud, insider trading, predatory dealmaking.</li>
+      </ul>
+      <h2>Key Duties</h2>
+      <ul>
+        <li>Drafting binding infernal instruments.</li>
+        <li>Closing high-risk multi-partite pacts.</li>
+        <li>Collateral adjudication and collections.</li>
+      </ul>
+      <h2>Red Flags</h2>
+      <ul>
+        <li>Inability to navigate ambiguity at scale.</li>
+      </ul>
+    `
+  });
+
+  pages.push({
+    title: 'Agony & Despair (A&D)',
+    html: `
+      <h1>Agony &amp; Despair (A&amp;D)</h1>
+      <p>Designs and operates psychological and physical torment programs. Creativity and ethics-agnostic experimentation are prized.</p>
+      <h2>Candidate Profile</h2>
+      <ul>
+        <li>Traits: creative sadism, methodical curiosity.</li>
+        <li>Background: unethical experiments, trauma infliction.</li>
+      </ul>
+      <h2>Key Duties</h2>
+      <ul>
+        <li>Designing bespoke torment regimens.</li>
+        <li>Running iterative trials with rigorous documentation.</li>
+      </ul>
+      <h2>Red Flags</h2>
+      <ul>
+        <li>Compassion fatigue impacting output (consider O&amp;C supervision).</li>
+      </ul>
+    `
+  });
+
+  pages.push({
+    title: 'Operations & Compliance (O&C)',
+    html: `
+      <h1>Operations &amp; Compliance (O&amp;C)</h1>
+      <p>Ensures adherence to infernal statutes, process discipline, and throughput quotas across divisions.</p>
+      <h2>Candidate Profile</h2>
+      <ul>
+        <li>Traits: authoritarian, meticulous, enforcement-oriented.</li>
+        <li>Background: punitive bureaucracy, war crimes, rules as weapons.</li>
+      </ul>
+      <h2>Key Duties</h2>
+      <ul>
+        <li>Auditing procedures and enforcing compliance.</li>
+        <li>Maintaining chain-of-torment integrity.</li>
+      </ul>
+      <h2>Red Flags</h2>
+      <ul>
+        <li>Grandstanding that disrupts throughput (consider C&amp;A).</li>
+      </ul>
+    `
+  });
+
+  return pages;
+}
+
+function ensureManualBuilt() {
+  if (!manualState.pages.length) {
+    manualState.pages = buildManualPages();
+  }
+}
+
+function renderManual() {
+  ensureManualBuilt();
+  const pagesWrap = document.getElementById('manualPages');
+  const outline = document.getElementById('manualOutline');
+  const totalPagesEl = document.getElementById('manualTotalPages');
+  const pageInput = document.getElementById('manualPageInput');
+  const zoomDisplay = document.getElementById('manualZoomDisplay');
+  if (!pagesWrap) return;
+
+  // Render pages once
+  if (!pagesWrap.dataset.rendered) {
+    pagesWrap.innerHTML = '';
+    manualState.pages.forEach((pg, idx) => {
+      const d = document.createElement('div');
+      d.className = 'manual-page';
+      d.dataset.page = String(idx + 1);
+      d.innerHTML = pg.html;
+      pagesWrap.appendChild(d);
+    });
+    pagesWrap.dataset.rendered = '1';
+  }
+
+  // Render outline
+  if (outline && !outline.dataset.rendered) {
+    outline.innerHTML = '';
+    manualState.pages.forEach((pg, idx) => {
+      const item = document.createElement('div');
+      item.className = 'outline-item' + (idx + 1 === manualState.currentPage ? ' active' : '');
+      item.textContent = `${idx + 1}. ${pg.title}`;
+      item.addEventListener('click', () => gotoManualPage(idx + 1));
+      outline.appendChild(item);
+    });
+    outline.dataset.rendered = '1';
+  } else if (outline) {
+    [...outline.children].forEach((c, i) => {
+      c.classList.toggle('active', i + 1 === manualState.currentPage);
+    });
+  }
+
+  // Update page controls
+  if (totalPagesEl) totalPagesEl.textContent = String(manualState.pages.length);
+  if (pageInput) {
+    pageInput.max = String(manualState.pages.length);
+    pageInput.value = String(manualState.currentPage);
+  }
+  if (zoomDisplay) zoomDisplay.textContent = Math.round(manualState.zoom * 100) + '%';
+
+  // Apply zoom and scroll current page into view
+  const allPages = pagesWrap.querySelectorAll('.manual-page');
+  allPages.forEach(p => {
+    p.style.transform = `scale(${manualState.zoom})`;
+    p.style.marginBottom = (24 * manualState.zoom) + 'px';
+  });
+  const current = pagesWrap.querySelector(`.manual-page[data-page="${manualState.currentPage}"]`);
+  if (current) current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function setManualZoom(z) {
+  const clamped = Math.min(2.0, Math.max(0.6, z));
+  manualState.zoom = clamped;
+  renderManual();
+}
+
+function gotoManualPage(n) {
+  const total = manualState.pages.length || 1;
+  const page = Math.min(total, Math.max(1, n));
+  manualState.currentPage = page;
+  renderManual();
+}
+
+function manualPrevPage() { gotoManualPage(manualState.currentPage - 1); }
+function manualNextPage() { gotoManualPage(manualState.currentPage + 1); }
+
+function openManualWindow() {
+  const win = document.getElementById('manualWindow');
+  win.style.display = 'block';
+  win.classList.remove('minimized');
+  bringToFront(win);
+  // First render
+  renderManual();
+}
+function closeManualWindow() { closeWindow('manualWindow'); }
+function toggleManualWindow() {
+  const el = document.getElementById('manualWindow');
+  const willOpen = (el.style.display === 'none' || !el.style.display);
+  if (willOpen) openManualWindow(); else closeManualWindow();
+}
+
