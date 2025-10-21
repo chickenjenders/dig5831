@@ -72,7 +72,7 @@ const soulDatabase = {
           </ul>
         </section>
       `,
-      requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'criminalRecord', 'sentenceJustification', 'traits', 'skills']
+      requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'sentenceJustification']
     },
     {
       id: 'S1-002', name: 'Jennifer Wu', correctDepartment: 'DR',
@@ -110,7 +110,7 @@ const soulDatabase = {
           </ul>
         </section>
       `,
-      requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'criminalRecord', 'sentenceJustification', 'traits', 'skills']
+      requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'sentenceJustification']
     },
     {
       id: 'S1-003', name: 'Viktor Petrov', correctDepartment: 'OC',
@@ -145,7 +145,7 @@ const soulDatabase = {
           </ul>
         </section>
       `,
-      requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'criminalRecord', 'sentenceJustification', 'traits', 'skills']
+      requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'sentenceJustification']
     },
     {
       id: 'S1-004', name: 'Dr. Sarah Chen', correctDepartment: 'AD',
@@ -180,7 +180,7 @@ const soulDatabase = {
           </ul>
         </section>
       `,
-      requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'criminalRecord', 'sentenceJustification', 'traits', 'skills']
+      requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'sentenceJustification']
     },
     {
       id: 'S1-005', name: 'Robert Kane', correctDepartment: 'MA',
@@ -216,7 +216,7 @@ const soulDatabase = {
           </ul>
         </section>
       `,
-      requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'criminalRecord', 'sentenceJustification', 'traits', 'skills']
+      requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'sentenceJustification']
     },
     {
       id: 'S1-006', name: 'Linda Martinez', correctDepartment: 'DR',
@@ -251,7 +251,7 @@ const soulDatabase = {
           </ul>
         </section>
       `,
-      requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'criminalRecord', 'sentenceJustification', 'traits', 'skills']
+      requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'sentenceJustification']
     },
   ]
 };
@@ -388,6 +388,38 @@ function setupDropZones() {
   });
 }
 
+/* ---------- Ratings (HR evaluation) ---------- */
+function setupRatings() {
+  const rows = document.querySelectorAll('.rating-row');
+  rows.forEach(row => {
+    const key = row.dataset.ratingKey;
+    const inputs = row.querySelectorAll('input[type="radio"]');
+    inputs.forEach(input => {
+      input.addEventListener('change', () => {
+        if (!gameState.currentSoulId) return;
+        if (!gameState.formData[gameState.currentSoulId]) gameState.formData[gameState.currentSoulId] = {};
+        if (!gameState.formData[gameState.currentSoulId].ratings) gameState.formData[gameState.currentSoulId].ratings = {};
+        gameState.formData[gameState.currentSoulId].ratings[key] = parseInt(input.value, 10);
+      });
+    });
+  });
+
+  // Clear buttons
+  document.querySelectorAll('.rating-clear').forEach(btn => {
+    btn.addEventListener('click', () => clearRating(btn.dataset.clear));
+  });
+}
+
+function clearRating(key) {
+  const row = document.querySelector(`.rating-row[data-rating-key="${key}"]`);
+  if (!row) return;
+  const name = `rating-${key}`;
+  row.querySelectorAll(`input[name="${name}"]`).forEach(r => { r.checked = false; });
+  if (gameState.currentSoulId && gameState.formData[gameState.currentSoulId] && gameState.formData[gameState.currentSoulId].ratings) {
+    delete gameState.formData[gameState.currentSoulId].ratings[key];
+  }
+}
+
 /* ---------- Remove dropped ---------- */
 function removeDroppedItem(field, ev) {
   ev.stopPropagation();
@@ -439,6 +471,10 @@ function clearForm() {
     z.innerHTML = `Drag and drop ${field.replace(/([A-Z])/g, ' $1').toLowerCase()} here...`;
   });
   document.getElementById('departmentSelect').value = '';
+  // reset ratings UI
+  document.querySelectorAll('.rating-row').forEach(row => {
+    row.querySelectorAll('input[type="radio"]').forEach(r => { r.checked = false; });
+  });
   if (gameState.currentSoulId) gameState.formData[gameState.currentSoulId] = {};
 }
 
@@ -833,6 +869,7 @@ document.addEventListener('mouseup', onMouseUp);
 document.addEventListener('DOMContentLoaded', () => {
   initGame();
   setupDropZones();
+  setupRatings();
 
   // Make floating windows draggable and resizable
   makeWindowDraggable('emailWindow');
