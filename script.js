@@ -29,32 +29,228 @@ const soulDatabase = {
   shift1: [
     {
       id: 'S1-001', name: 'Marcus Blackwell', correctDepartment: 'CA',
-      description: `<span class="draggable" data-type="name" data-value="Marcus Blackwell">Marcus Blackwell</span> arrived on <span class="draggable" data-type="dateOfDeath" data-value="March 15, 2024">March 15, 2024</span> after <span class="draggable" data-type="causeOfDeath" data-value="heart attack during hostile takeover meeting">heart attack during a hostile takeover meeting</span>. Records: <span class="draggable" data-type="criminalRecord" data-value="insider trading, fraud">insider trading, fraud</span>. Judgment: <span class="draggable" data-type="sentenceJustification" data-value="financial manipulation and market corruption">financial manipulation</span>. Traits: <span class="draggable" data-type="traits" data-value="ruthless ambition">ruthless ambition</span>. Skills: <span class="draggable" data-type="skills" data-value="contract negotiation">contract negotiation</span>.`,
+      description: `
+        <section>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+            <div>
+              <strong><span class="draggable" data-type="name" data-value="Marcus Blackwell">Marcus Blackwell</span></strong><br>
+              555-0133 • marcus.blackwell@example.com • Chicago, IL
+            </div>
+            <div style="text-align:right;color:#6b6058;font-size:12px">
+              Deceased: <span class="draggable" data-type="dateOfDeath" data-value="March 15, 2024">March 15, 2024</span><br>
+              Cause: <span class="draggable" data-type="causeOfDeath" data-value="heart attack during hostile takeover meeting">heart attack (during boardroom confrontation)</span>
+            </div>
+          </div>
+          <h3>Professional Summary</h3>
+          <p>Executive dealmaker with 15+ years in mergers, leveraged buyouts, and contract architecture. Known for <span class="draggable" data-type="traits" data-value="ruthless ambition">ruthless ambition</span>, persuasive rhetoric, and zero-slip execution under pressure.</p>
+
+          <h3>Experience</h3>
+          <div>
+            <div style="display:flex;justify-content:space-between"><strong>Blackwell Capital Partners</strong><span>2018–2024</span></div>
+            <em>Managing Director, Contract Strategy</em>
+            <ul>
+              <li>Negotiated cross-jurisdictional agreements; specialized in <span class="draggable" data-type="skills" data-value="contract negotiation">contract negotiation</span> and risk transfer.</li>
+              <li>Structured instruments later investigated for <span class="draggable" data-type="criminalRecord" data-value="insider trading, fraud">insider trading and securities fraud</span>.</li>
+              <li>Led “Project Cerberus” acquisition; outcome precipitated fatal cardiac event.</li>
+            </ul>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between"><strong>Northline Holdings</strong><span>2013–2018</span></div>
+            <em>Director, M&A</em>
+            <ul>
+              <li>Built a pipeline exceeding $2.1B in enterprise value; championed asymmetric clauses.</li>
+            </ul>
+          </div>
+
+          <h3>Education</h3>
+          <p>MBA, Kellogg School of Management • BA, Economics</p>
+
+          <h3>Highlights</h3>
+          <ul>
+            <li>Bartered exclusivity via warranty traps; optimized indemnity carve-outs.</li>
+            <li>Ethics inquiries concluded “pattern of <span class="draggable" data-type="sentenceJustification" data-value="financial manipulation and market corruption">financial manipulation</span>.”</li>
+          </ul>
+        </section>
+      `,
       requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'criminalRecord', 'sentenceJustification', 'traits', 'skills']
     },
     {
       id: 'S1-002', name: 'Jennifer Wu', correctDepartment: 'DR',
-      description: `Case: <span class="draggable" data-type="name" data-value="Jennifer Wu">Jennifer Wu</span>, <span class="draggable" data-type="dateOfDeath" data-value="July 22, 2024">July 22, 2024</span>, <span class="draggable" data-type="causeOfDeath" data-value="overdose of prescription medications">intentional overdose</span>. Records: <span class="draggable" data-type="criminalRecord" data-value="emotional manipulation, blackmail">emotional manipulation</span>. Judgment: <span class="draggable" data-type="sentenceJustification" data-value="psychological abuse">psychological abuse</span>. Traits: <span class="draggable" data-type="traits" data-value="socially manipulative">socially manipulative</span>. Skills: <span class="draggable" data-type="skills" data-value="conflict mediation">conflict mediation</span>.`,
+      description: `
+        <section>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+            <div>
+              <strong><span class="draggable" data-type="name" data-value="Jennifer Wu">Jennifer Wu</span></strong><br>
+              555-0148 • jennifer.wu@example.com • Seattle, WA
+            </div>
+            <div style="text-align:right;color:#6b6058;font-size:12px">
+              Deceased: <span class="draggable" data-type="dateOfDeath" data-value="July 22, 2024">July 22, 2024</span><br>
+              Cause: <span class="draggable" data-type="causeOfDeath" data-value="overdose of prescription medications">overdose of prescription medications</span>
+            </div>
+          </div>
+          <h3>Profile</h3>
+          <p>Facilitator and conflict “whisperer” adept at narrative framing and group dynamics. Reputation for <span class="draggable" data-type="traits" data-value="socially manipulative">socially manipulative</span> rapport tactics that accelerate consensus.</p>
+
+          <h3>Experience</h3>
+          <div>
+            <div style="display:flex;justify-content:space-between"><strong>NeonBridge Consulting</strong><span>2020–2024</span></div>
+            <em>Senior Mediation Specialist</em>
+            <ul>
+              <li>Led high-emotion mediations; praised for <span class="draggable" data-type="skills" data-value="conflict mediation">conflict mediation</span> outcomes across hostile teams.</li>
+              <li>Off-the-record reports cite <span class="draggable" data-type="criminalRecord" data-value="emotional manipulation, blackmail">emotional manipulation and blackmail</span> of stakeholders.</li>
+            </ul>
+          </div>
+
+          <h3>Education & Certifications</h3>
+          <p>MA, Organizational Psychology • Certified Negotiation Analyst</p>
+
+          <h3>Notables</h3>
+          <ul>
+            <li>Documented pattern of <span class="draggable" data-type="sentenceJustification" data-value="psychological abuse">psychological abuse</span> masked as facilitation.</li>
+          </ul>
+        </section>
+      `,
       requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'criminalRecord', 'sentenceJustification', 'traits', 'skills']
     },
     {
       id: 'S1-003', name: 'Viktor Petrov', correctDepartment: 'OC',
-      description: `Intake: <span class="draggable" data-type="name" data-value="Viktor Petrov">Viktor Petrov</span>, <span class="draggable" data-type="dateOfDeath" data-value="November 3, 2023">November 3, 2023</span>, <span class="draggable" data-type="causeOfDeath" data-value="execution by firing squad">execution by firing squad</span>. Records: <span class="draggable" data-type="criminalRecord" data-value="war crimes, torture">war crimes</span>. Judgment: <span class="draggable" data-type="sentenceJustification" data-value="abuse of authority">abuse of authority</span>. Traits: <span class="draggable" data-type="traits" data-value="authoritarian">authoritarian</span>. Skills: <span class="draggable" data-type="skills" data-value="enforcement">enforcement</span>.`,
+      description: `
+        <section>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+            <div>
+              <strong><span class="draggable" data-type="name" data-value="Viktor Petrov">Viktor Petrov</span></strong><br>
+              555-0189 • v.petrov@example.com • Riga, LV
+            </div>
+            <div style="text-align:right;color:#6b6058;font-size:12px">
+              Deceased: <span class="draggable" data-type="dateOfDeath" data-value="November 3, 2023">November 3, 2023</span><br>
+              Cause: <span class="draggable" data-type="causeOfDeath" data-value="execution by firing squad">execution by firing squad</span>
+            </div>
+          </div>
+          <h3>Summary</h3>
+          <p>Command-first operations leader with entrenched hierarchy discipline and <span class="draggable" data-type="traits" data-value="authoritarian">authoritarian</span> decision-making.</p>
+
+          <h3>Experience</h3>
+          <div>
+            <div style="display:flex;justify-content:space-between"><strong>State Internal Directorate</strong><span>2010–2023</span></div>
+            <em>Chief of Enforcement</em>
+            <ul>
+              <li>Oversaw compliance sweeps; direct participation in <span class="draggable" data-type="criminalRecord" data-value="war crimes, torture">war crimes and torture</span> allegations.</li>
+              <li>Specialty in field <span class="draggable" data-type="skills" data-value="enforcement">enforcement</span> protocols.</li>
+            </ul>
+          </div>
+
+          <h3>Findings</h3>
+          <ul>
+            <li>Adjudicated as systemic <span class="draggable" data-type="sentenceJustification" data-value="abuse of authority">abuse of authority</span>.</li>
+          </ul>
+        </section>
+      `,
       requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'criminalRecord', 'sentenceJustification', 'traits', 'skills']
     },
     {
       id: 'S1-004', name: 'Dr. Sarah Chen', correctDepartment: 'AD',
-      description: `<span class="draggable" data-type="name" data-value="Dr. Sarah Chen">Dr. Sarah Chen</span>, <span class="draggable" data-type="dateOfDeath" data-value="January 8, 2025">January 8, 2025</span>, <span class="draggable" data-type="causeOfDeath" data-value="laboratory accident">laboratory accident</span>. Records: <span class="draggable" data-type="criminalRecord" data-value="illegal human experimentation">illegal human experimentation</span>. Judgment: <span class="draggable" data-type="sentenceJustification" data-value="deliberate infliction of psychological trauma">deliberate psychological torture</span>. Traits: <span class="draggable" data-type="traits" data-value="creative sadism">creative sadism</span>. Skills: <span class="draggable" data-type="skills" data-value="experimental design">experimental design</span>.`,
+      description: `
+        <section>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+            <div>
+              <strong><span class="draggable" data-type="name" data-value="Dr. Sarah Chen">Dr. Sarah Chen</span></strong><br>
+              555-0127 • s.chen@example.com • Boston, MA
+            </div>
+            <div style="text-align:right;color:#6b6058;font-size:12px">
+              Deceased: <span class="draggable" data-type="dateOfDeath" data-value="January 8, 2025">January 8, 2025</span><br>
+              Cause: <span class="draggable" data-type="causeOfDeath" data-value="laboratory accident">laboratory accident</span>
+            </div>
+          </div>
+          <h3>Summary</h3>
+          <p>Research clinician with a penchant for boundary-pushing studies and <span class="draggable" data-type="traits" data-value="creative sadism">creative sadism</span> disguised as innovation.</p>
+
+          <h3>Experience</h3>
+          <div>
+            <div style="display:flex;justify-content:space-between"><strong>Procyon Labs</strong><span>2019–2025</span></div>
+            <em>Principal Investigator</em>
+            <ul>
+              <li>Conceived and led “ECHO” trials; methodology later censured for <span class="draggable" data-type="criminalRecord" data-value="illegal human experimentation">illegal human experimentation</span>.</li>
+              <li>Core capability in <span class="draggable" data-type="skills" data-value="experimental design">experimental design</span> and behavioral conditioning.</li>
+            </ul>
+          </div>
+
+          <h3>Ethics Review</h3>
+          <ul>
+            <li>Determination: <span class="draggable" data-type="sentenceJustification" data-value="deliberate infliction of psychological trauma">deliberate infliction of psychological trauma</span>.</li>
+          </ul>
+        </section>
+      `,
       requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'criminalRecord', 'sentenceJustification', 'traits', 'skills']
     },
     {
       id: 'S1-005', name: 'Robert Kane', correctDepartment: 'MA',
-      description: `<span class="draggable" data-type="name" data-value="Robert Kane">Robert Kane</span>, <span class="draggable" data-type="dateOfDeath" data-value="September 30, 2024">September 30, 2024</span>, <span class="draggable" data-type="causeOfDeath" data-value="assassination">assassination</span>. Records: <span class="draggable" data-type="criminalRecord" data-value="cult leadership, extortion">cult leadership</span>. Judgment: <span class="draggable" data-type="sentenceJustification" data-value="mass manipulation">mass manipulation</span>. Traits: <span class="draggable" data-type="traits" data-value="charismatic">charismatic</span>. Skills: <span class="draggable" data-type="skills" data-value="mass persuasion">mass persuasion</span>.`,
+      description: `
+        <section>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+            <div>
+              <strong><span class="draggable" data-type="name" data-value="Robert Kane">Robert Kane</span></strong><br>
+              555-0162 • r.kane@example.com • Austin, TX
+            </div>
+            <div style="text-align:right;color:#6b6058;font-size:12px">
+              Deceased: <span class="draggable" data-type="dateOfDeath" data-value="September 30, 2024">September 30, 2024</span><br>
+              Cause: <span class="draggable" data-type="causeOfDeath" data-value="assassination">assassination</span>
+            </div>
+          </div>
+          <h3>Summary</h3>
+          <p>Movement architect skilled in audience capture and escalation funnels. Charismatic front with high conversion rates.</p>
+
+          <h3>Experience</h3>
+          <div>
+            <div style="display:flex;justify-content:space-between"><strong>New Dawn Fellowship</strong><span>2016–2024</span></div>
+            <em>Founder & Lead Orator</em>
+            <ul>
+              <li>Engineered mass recruitment scripts; peak attendance 12,000+ (<span class="draggable" data-type="skills" data-value="mass persuasion">mass persuasion</span>).</li>
+              <li>Investigations cite <span class="draggable" data-type="criminalRecord" data-value="cult leadership, extortion">cult leadership and extortion</span>.</li>
+            </ul>
+          </div>
+
+          <h3>Traits & Notes</h3>
+          <ul>
+            <li><span class="draggable" data-type="traits" data-value="charismatic">charismatic</span>; thrives on crowd feedback loops.</li>
+            <li>Disposition rationale: <span class="draggable" data-type="sentenceJustification" data-value="mass manipulation">mass manipulation</span>.</li>
+          </ul>
+        </section>
+      `,
       requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'criminalRecord', 'sentenceJustification', 'traits', 'skills']
     },
     {
       id: 'S1-006', name: 'Linda Martinez', correctDepartment: 'DR',
-      description: `<span class="draggable" data-type="name" data-value="Linda Martinez">Linda Martinez</span>, <span class="draggable" data-type="dateOfDeath" data-value="December 12, 2024">December 12, 2024</span>, <span class="draggable" data-type="causeOfDeath" data-value="car accident">car accident</span>. Records: <span class="draggable" data-type="criminalRecord" data-value="exploitation of patients">exploitation of patients</span>. Judgment: <span class="draggable" data-type="sentenceJustification" data-value="betrayal of trust">betrayal of trust</span>. Traits: <span class="draggable" data-type="traits" data-value="false empathy">false empathy</span>. Skills: <span class="draggable" data-type="skills" data-value="counseling">counseling</span>.`,
+      description: `
+        <section>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+            <div>
+              <strong><span class="draggable" data-type="name" data-value="Linda Martinez">Linda Martinez</span></strong><br>
+              555-0174 • linda.martinez@example.com • Phoenix, AZ
+            </div>
+            <div style="text-align:right;color:#6b6058;font-size:12px">
+              Deceased: <span class="draggable" data-type="dateOfDeath" data-value="December 12, 2024">December 12, 2024</span><br>
+              Cause: <span class="draggable" data-type="causeOfDeath" data-value="car accident">car accident</span>
+            </div>
+          </div>
+          <h3>Summary</h3>
+          <p>Clinical counselor with polished bedside manner masking <span class="draggable" data-type="traits" data-value="false empathy">false empathy</span> and transactional relationships.</p>
+
+          <h3>Experience</h3>
+          <div>
+            <div style="display:flex;justify-content:space-between"><strong>Haven Behavioral</strong><span>2019–2024</span></div>
+            <em>Senior Counselor</em>
+            <ul>
+              <li>Provided <span class="draggable" data-type="skills" data-value="counseling">counseling</span> services; outcomes overshadowed by patient complaints.</li>
+              <li>Investigations detail <span class="draggable" data-type="criminalRecord" data-value="exploitation of patients">exploitation of patients</span> for personal gain.</li>
+            </ul>
+          </div>
+
+          <h3>Disposition</h3>
+          <ul>
+            <li>Violation basis: <span class="draggable" data-type="sentenceJustification" data-value="betrayal of trust">betrayal of trust</span> in clinical setting.</li>
+          </ul>
+        </section>
+      `,
       requiredFields: ['name', 'dateOfDeath', 'causeOfDeath', 'criminalRecord', 'sentenceJustification', 'traits', 'skills']
     },
   ]
@@ -143,7 +339,14 @@ function renderSoulCard(soul) {
     </div>
   `;
 
-  viewer.appendChild(resumeContainer);
+  // Wrap in an inner scroll container to guarantee scrolling
+  const scrollWrap = document.createElement('div');
+  scrollWrap.className = 'soul-scroll';
+  scrollWrap.appendChild(resumeContainer);
+  viewer.appendChild(scrollWrap);
+
+  // ensure the panel starts scrolled to top for new selections
+  scrollWrap.scrollTop = 0;
 
   // initialize draggable text elements
   setTimeout(() => {
