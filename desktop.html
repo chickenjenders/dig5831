@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Infernal Affairs — Shift 1 Prototype</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- watermark tiles -->
+    <div class="watermark" id="watermark"></div>
+
+    <div class="desktop" id="desktopRoot">
+        <!-- Shift Info -->
+        <div class="shift-info">
+            <h2>SHIFT <span id="currentShift">1</span></h2>
+            <p>Souls Processed: <strong id="soulsProcessed">0</strong>/<span id="totalSouls">6</span></p>
+            <p>Accuracy: <strong id="accuracy">-</strong></p>
+        </div>
+
+        <!-- Main window -->
+        <div class="main-app floating-window" id="main-app" role="application" aria-label="Soul Processing System"
+            style="position:fixed;top:48px;left:48px;">
+            <div class="main-app-header window-titlebar" id="mainAppTitlebar">
+                <div class="main-app-title window-title">Work • Perpetua — Soul Processing System</div>
+                <div class="main-app-controls window-controls">
+                    <div class="window-btn min" onclick="minimizeWindow('main-app')">−</div>
+                    <div class="window-btn max" onclick="maximizeWindow('main-app')">□</div>
+                    <div class="window-btn close" onclick="closeMainApp()">×</div>
+                </div>
+            </div>
+
+            <div class="main-app-content">
+                <!-- Left Queue Sidebar -->
+                <aside class="queue-sidebar">
+                    <div class="queue-header">Queue</div>
+                    <div class="queue-list" id="worklistContent"></div>
+                    <div class="quota-meter">
+                        <div style="font-size:11px;color:#6b6058">0/8 Quota Met</div>
+                    </div>
+                </aside>
+
+                <!-- Center Soul Details Panel -->
+                <main class="soul-viewer" id="soulViewerContent">
+                    <div class="empty-state">
+                        <div style="font-size:48px;opacity:0.6">📄</div>
+                        <p style="color:#6b6058;margin-top:12px">Select a soul from the queue to view case file</p>
+                    </div>
+                </main>
+            </div>
+            <div class="window-resize-handle" onmousedown="startResize(event, 'main-app')"></div>
+        </div>
+
+        <!-- Form 666-B as floating window -->
+        <div id="formWindow" class="floating-window"
+            style="position:fixed;top:150px;left:450px;width:580px;height:600px;display:none;">
+            <div class="window-titlebar" id="formWindowTitlebar">
+                <div class="window-title">📝 FORM 666-B</div>
+                <div class="window-controls">
+                    <div class="window-btn min" onclick="minimizeWindow('formWindow')">−</div>
+                    <div class="window-btn max" onclick="maximizeWindow('formWindow')">□</div>
+                    <div class="window-btn close" onclick="toggleFormPanel()">×</div>
+                </div>
+            </div>
+            <div class="window-content"
+                style="display:flex;flex-direction:column;height:calc(100% - 40px);background:linear-gradient(#f7f5ed,#fdfbf8);overflow:auto;padding:16px">
+                <div class="form-header">
+                    <h2>FORM 666-B</h2>
+                    <div style="font-size:12px;color:#6b6058">Candidate Review & Department Assignment Form</div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Basic Information</h3>
+                    <div class="form-field">
+                        <label>Full Name <span style="color:var(--accent)">*</span></label>
+                        <div class="drop-zone" data-field="name">Drag and drop name here...</div>
+                    </div>
+                    <div class="form-field">
+                        <label>Date of Death <span style="color:var(--accent)">*</span></label>
+                        <div class="drop-zone" data-field="dateOfDeath">Drag and drop date of death here...</div>
+                    </div>
+                    <div class="form-field">
+                        <label>Cause of Death <span style="color:var(--accent)">*</span></label>
+                        <div class="drop-zone" data-field="causeOfDeath">Drag and drop cause of death here...</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Background & History</h3>
+                    <div class="form-field">
+                        <label>Criminal Record</label>
+                        <div class="drop-zone" data-field="criminalRecord">Drag and drop criminal history here...</div>
+                    </div>
+                    <div class="form-field">
+                        <label>Sentence Justification <span style="color:var(--accent)">*</span></label>
+                        <div class="drop-zone" data-field="sentenceJustification">Drag and drop damnation reasoning
+                            here...</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Candidate Profile Assessment</h3>
+                    <div class="form-field">
+                        <label>Personality Traits</label>
+                        <div class="drop-zone" data-field="traits">Drag and drop personality traits here...</div>
+                    </div>
+                    <div class="form-field">
+                        <label>Skills & Expertise</label>
+                        <div class="drop-zone" data-field="skills">Drag and drop skills here...</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>HR Evaluation — Ratings</h3>
+                    <div class="rating-checklist" id="ratingChecklist">
+                        <div class="rating-row" data-rating-key="persuasion">
+                            <div class="rating-label">Persuasion / Negotiation</div>
+                            <div class="rating-scale">
+                                <label><input type="radio" name="rating-persuasion" value="1"><span>1</span></label>
+                                <label><input type="radio" name="rating-persuasion" value="2"><span>2</span></label>
+                                <label><input type="radio" name="rating-persuasion" value="3"><span>3</span></label>
+                                <label><input type="radio" name="rating-persuasion" value="4"><span>4</span></label>
+                                <label><input type="radio" name="rating-persuasion" value="5"><span>5</span></label>
+                            </div>
+                            <button class="rating-clear" type="button" data-clear="persuasion">Clear</button>
+                        </div>
+
+                        <div class="rating-row" data-rating-key="manipulation">
+                            <div class="rating-label">Manipulation / Influence</div>
+                            <div class="rating-scale">
+                                <label><input type="radio" name="rating-manipulation" value="1"><span>1</span></label>
+                                <label><input type="radio" name="rating-manipulation" value="2"><span>2</span></label>
+                                <label><input type="radio" name="rating-manipulation" value="3"><span>3</span></label>
+                                <label><input type="radio" name="rating-manipulation" value="4"><span>4</span></label>
+                                <label><input type="radio" name="rating-manipulation" value="5"><span>5</span></label>
+                            </div>
+                            <button class="rating-clear" type="button" data-clear="manipulation">Clear</button>
+                        </div>
+
+                        <div class="rating-row" data-rating-key="leadership">
+                            <div class="rating-label">Leadership</div>
+                            <div class="rating-scale">
+                                <label><input type="radio" name="rating-leadership" value="1"><span>1</span></label>
+                                <label><input type="radio" name="rating-leadership" value="2"><span>2</span></label>
+                                <label><input type="radio" name="rating-leadership" value="3"><span>3</span></label>
+                                <label><input type="radio" name="rating-leadership" value="4"><span>4</span></label>
+                                <label><input type="radio" name="rating-leadership" value="5"><span>5</span></label>
+                            </div>
+                            <button class="rating-clear" type="button" data-clear="leadership">Clear</button>
+                        </div>
+
+                        <div class="rating-row" data-rating-key="compliance">
+                            <div class="rating-label">Compliance / Discipline</div>
+                            <div class="rating-scale">
+                                <label><input type="radio" name="rating-compliance" value="1"><span>1</span></label>
+                                <label><input type="radio" name="rating-compliance" value="2"><span>2</span></label>
+                                <label><input type="radio" name="rating-compliance" value="3"><span>3</span></label>
+                                <label><input type="radio" name="rating-compliance" value="4"><span>4</span></label>
+                                <label><input type="radio" name="rating-compliance" value="5"><span>5</span></label>
+                            </div>
+                            <button class="rating-clear" type="button" data-clear="compliance">Clear</button>
+                        </div>
+
+                        <div class="rating-row" data-rating-key="creativity">
+                            <div class="rating-label">Creativity / Innovation</div>
+                            <div class="rating-scale">
+                                <label><input type="radio" name="rating-creativity" value="1"><span>1</span></label>
+                                <label><input type="radio" name="rating-creativity" value="2"><span>2</span></label>
+                                <label><input type="radio" name="rating-creativity" value="3"><span>3</span></label>
+                                <label><input type="radio" name="rating-creativity" value="4"><span>4</span></label>
+                                <label><input type="radio" name="rating-creativity" value="5"><span>5</span></label>
+                            </div>
+                            <button class="rating-clear" type="button" data-clear="creativity">Clear</button>
+                        </div>
+
+                        <div class="rating-row" data-rating-key="empathy">
+                            <div class="rating-label">Empathy</div>
+                            <div class="rating-scale">
+                                <label><input type="radio" name="rating-empathy" value="1"><span>1</span></label>
+                                <label><input type="radio" name="rating-empathy" value="2"><span>2</span></label>
+                                <label><input type="radio" name="rating-empathy" value="3"><span>3</span></label>
+                                <label><input type="radio" name="rating-empathy" value="4"><span>4</span></label>
+                                <label><input type="radio" name="rating-empathy" value="5"><span>5</span></label>
+                            </div>
+                            <button class="rating-clear" type="button" data-clear="empathy">Clear</button>
+                        </div>
+
+                        <div class="rating-row" data-rating-key="risk">
+                            <div class="rating-label">Risk Management</div>
+                            <div class="rating-scale">
+                                <label><input type="radio" name="rating-risk" value="1"><span>1</span></label>
+                                <label><input type="radio" name="rating-risk" value="2"><span>2</span></label>
+                                <label><input type="radio" name="rating-risk" value="3"><span>3</span></label>
+                                <label><input type="radio" name="rating-risk" value="4"><span>4</span></label>
+                                <label><input type="radio" name="rating-risk" value="5"><span>5</span></label>
+                            </div>
+                            <button class="rating-clear" type="button" data-clear="risk">Clear</button>
+                        </div>
+
+                        <div class="rating-row" data-rating-key="technical">
+                            <div class="rating-label">Technical / Domain Expertise</div>
+                            <div class="rating-scale">
+                                <label><input type="radio" name="rating-technical" value="1"><span>1</span></label>
+                                <label><input type="radio" name="rating-technical" value="2"><span>2</span></label>
+                                <label><input type="radio" name="rating-technical" value="3"><span>3</span></label>
+                                <label><input type="radio" name="rating-technical" value="4"><span>4</span></label>
+                                <label><input type="radio" name="rating-technical" value="5"><span>5</span></label>
+                            </div>
+                            <button class="rating-clear" type="button" data-clear="technical">Clear</button>
+                        </div>
+                    </div>
+                    <div class="rating-note">Tip: Rate based on the resume details you’ve reviewed.</div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Department Assignment</h3>
+                    <div class="form-field">
+                        <label>Recommended Department <span style="color:var(--accent)">*</span></label>
+                        <select class="department-select" id="departmentSelect">
+                            <option value="">-- Select Department --</option>
+                            <option value="DR">Demon Relations (DR)</option>
+                            <option value="MA">Mortal Affairs (MA)</option>
+                            <option value="CA">Contracts & Acquisitions (C&A)</option>
+                            <option value="AD">Agony & Despair (A&D)</option>
+                            <option value="OC">Operations & Compliance (O&C)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn" onclick="submitForm()">Submit to Department</button>
+                    <button class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+                </div>
+            </div>
+            <div class="window-resize-handle" onmousedown="startResize(event, 'formWindow')"></div>
+        </div>
+
+    </div>
+
+    <!-- Taskbar -->
+    <div class="taskbar" role="toolbar" aria-label="Taskbar">
+        <div class="taskbar-btn" id="workBtn" onclick="focusMain()">
+            <div class="icon">📋</div> Work
+        </div>
+        <div class="taskbar-btn" id="mailBtn" onclick="toggleEmailWindow()">
+            <div class="icon" id="mailIcon">📧</div> Hell-Mail
+        </div>
+        <div class="taskbar-btn" onclick="toggleFormPanel()">
+            <div class="icon">📝</div> Form 666-B
+        </div>
+        <div class="taskbar-btn" id="manualBtn" onclick="toggleManualWindow()">
+            <div class="icon">📘</div> Manual
+        </div>
+        <div style="flex:1"></div>
+        <div style="color:#f6f1e9;font-weight:700;margin-right:12px">2:56 PM &nbsp;&nbsp; 6/6/6</div>
+    </div>
+
+    <!-- Email floating window -->
+    <div id="emailWindow" class="floating-window"
+        style="position:fixed;top:100px;left:120px;width:900px;height:600px;display:none;">
+        <div class="window-titlebar" id="emailWindowTitlebar">
+            <div class="window-title">📧 Mail</div>
+            <div class="window-controls">
+                <div class="window-btn min" onclick="minimizeWindow('emailWindow')">−</div>
+                <div class="window-btn max" onclick="maximizeWindow('emailWindow')">□</div>
+                <div class="window-btn close" onclick="closeEmailWindow()">×</div>
+            </div>
+        </div>
+        <div class="outlook-email-container">
+            <div id="emailList" class="outlook-email-list"></div>
+            <div id="emailView" class="outlook-email-preview"></div>
+        </div>
+        <div class="window-resize-handle" onmousedown="startResize(event, 'emailWindow')"></div>
+    </div>
+
+    <!-- Modal as floating window -->
+    <div id="modal" class="floating-window modal"
+        style="position:fixed;top:200px;left:300px;width:600px;display:none;z-index:4000">
+        <div class="window-titlebar" id="modalTitlebar">
+            <div class="window-title" id="modalTitle">Alert</div>
+            <div class="window-controls">
+                <div class="window-btn min" onclick="minimizeWindow('modal')">−</div>
+                <div class="window-btn max" onclick="maximizeWindow('modal')">□</div>
+                <div class="window-btn close" onclick="closeModal()">×</div>
+            </div>
+        </div>
+        <div class="window-content"
+            style="display:flex;flex-direction:column;height:calc(100% - 40px);background:linear-gradient(#f7f5ed,#f2eee6);padding:16px;overflow:auto">
+            <div class="modal-body" id="modalBody" style="flex:1;color:#4b433f;line-height:1.6;margin-bottom:12px">
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+                <button class="btn" id="modalOk">OK</button>
+            </div>
+        </div>
+        <div class="window-resize-handle" onmousedown="startResize(event, 'modal')"></div>
+    </div>
+    </div>
+
+
+    <!-- Manual Viewer floating window -->
+    <div id="manualWindow" class="floating-window"
+        style="position:fixed;top:120px;left:180px;width:980px;height:640px;display:none;">
+        <div class="window-titlebar" id="manualWindowTitlebar">
+            <div class="window-title">📘 Manual — Business Process</div>
+            <div class="window-controls">
+                <div class="window-btn min" onclick="minimizeWindow('manualWindow')">−</div>
+                <div class="window-btn max" onclick="maximizeWindow('manualWindow')">□</div>
+                <div class="window-btn close" onclick="closeManualWindow()">×</div>
+            </div>
+        </div>
+        <div class="manual-viewer">
+            <div class="manual-toolbar">
+                <div class="toolbar-group">
+                    <button class="tool-btn" title="Previous Page" id="manualPrevBtn">◀</button>
+                    <span class="page-indicator">Page <input id="manualPageInput" type="number" min="1" value="1"> of
+                        <span id="manualTotalPages">1</span></span>
+                    <button class="tool-btn" title="Next Page" id="manualNextBtn">▶</button>
+                </div>
+                <div class="toolbar-group">
+                    <button class="tool-btn" title="Zoom Out" id="manualZoomOut">−</button>
+                    <span class="zoom-display" id="manualZoomDisplay">100%</span>
+                    <button class="tool-btn" title="Zoom In" id="manualZoomIn">＋</button>
+                </div>
+                <div class="toolbar-group right">
+                    <button class="tool-btn" title="Download (not available)" disabled>⤓</button>
+                    <button class="tool-btn" title="Print" id="manualPrintBtn">🖨</button>
+                </div>
+            </div>
+            <div class="manual-body">
+                <aside class="manual-sidebar">
+                    <div class="sidebar-header">Outline</div>
+                    <div id="manualOutline" class="sidebar-list"></div>
+                </aside>
+                <main class="manual-canvas">
+                    <div id="manualPages" class="pages-wrap"></div>
+                </main>
+            </div>
+        </div>
+        <div class="window-resize-handle" onmousedown="startResize(event, 'manualWindow')"></div>
+    </div>
+
+
+
+    <script src="script.js" defer></script>
+</body>
+
+</html>
