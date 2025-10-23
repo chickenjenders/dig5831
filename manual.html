@@ -132,10 +132,6 @@
       border-radius: 3px;
     }
 
-    .phrase.req {
-      outline: 1px dashed #c22;
-    }
-
     /* subtle hint that it's 'special' */
     .phrase.hl {
       background: #ffcf4d;
@@ -230,7 +226,7 @@ Compliance is Comfort.
 Activity is Achievement.
 Inquiry is Inefficiency.
 Procedure is Providence.
-These principles are mentioned periodically throughout the manual content. To ensure you have fully read and comprehend the manual and its valuable teachings, you must highlight the areas where you find these five principles in the manual pages. Simply click the words to highlight them and submit your findings once you make it to the end of your manual reading. The alliteration should help… maybe!
+These principles are mentioned periodically throughout the manual content. To ensure you have fully read and comprehend the manual and its valuable teachings, you must highlight the ALL areas where you find these five principles in the manual pages. Simply click the words to highlight them and submit your findings once you make it to the end of your manual reading. The alliteration should help… maybe!
 Oh, and a special other thing to look for is the Hell Incorporated mascot! Find him and highlight him to never be asked to look at this again!
 Good luck and don’t forget, we’re always watching!`,
 
@@ -283,7 +279,23 @@ Insubordination is inefficient. Your refusal to engage in your assigned duties w
     /* ================================
        RENDERING + HIGHLIGHT LOGIC
        ================================ */
-    const REQUIRED_KEYS = [...PRINCIPLES, MASCOT]; // all must be highlighted
+    const REQUIRED_KEYS = [
+      // table of contents list
+      "Perpetuity is Productivity.",
+      "Compliance is Comfort.",
+      "Activity is Achievement.",
+      "Inquiry is Inefficiency.",
+      "Procedure is Providence.",
+      // in-manual repetitions
+      "Perpetuity is Productivity.",
+      "Compliance is Comfort.",
+      "Activity is Achievement.",
+      "Inquiry is Inefficiency.",
+      "Procedure is Providence.",
+      // mascot
+      "Damnation Dan,"
+    ];
+
 
     let currentPage = 0;
     let highlightedMap = new Map(); // key: `${pageIndex}:${tokenKey}` -> true
@@ -400,7 +412,9 @@ Insubordination is inefficient. Your refusal to engage in your assigned duties w
     /* Submission */
     document.getElementById("submitHighlights").addEventListener("click", () => {
       // Must include all five principles + mascot
-      const missing = REQUIRED_KEYS.filter(k => !phraseHighlights.has(k));
+      const uniqueKeys = new Set(REQUIRED_KEYS);
+      const missing = [...uniqueKeys].filter(k => !phraseHighlights.has(k));
+
       if (missing.length === 0) {
         document.body.innerHTML =
           "<h1 style='color:#f44; text-align:center; margin-top:22vh; font-size:64px;'>Congratulations! You understand Hell.</h1>";
