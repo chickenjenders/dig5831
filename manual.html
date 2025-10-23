@@ -6,16 +6,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Manual Madness — Hell Incorporated</title>
   <style>
-    body {
-      font-family: "Helvetica Neue", Arial, sans-serif;
-      background: #8a8a8a;
-      margin: 0;
-      color: #222;
+    /* ——— Global / Beige Corporate ——— */
+    :root {
+      --paper: #f6f1e7;
+      --paper-dk: #efe6d8;
+      --ink: #2a2a2a;
+      --quiet: #6c6257;
+      --line: #c9bba6;
+      --accent: #b22323;
+      /* infernal red */
+      --accent-ink: #7e1717;
+      --toolbar: #3b3a38;
+      --workspace: #d4cbbd;
+      /* beige background */
     }
 
-    /* Top fake PDF toolbar */
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: var(--workspace);
+      margin: 0;
+      color: var(--ink);
+    }
+
+    /* ——— Fake PDF toolbar ——— */
     #toolbar {
-      background: #2c2c2c;
+      background: var(--toolbar);
       color: #eee;
       display: flex;
       justify-content: space-between;
@@ -29,7 +44,7 @@
 
     #toolbar-left a,
     #toolbar-left span {
-      color: #bbb;
+      color: #cfcfcf;
       margin-right: 16px;
       text-decoration: none;
       cursor: pointer;
@@ -43,7 +58,7 @@
 
     #toolbar-right {
       font-size: 14px;
-      color: #aaa;
+      color: #ddd;
       display: flex;
       gap: 10px;
       align-items: center;
@@ -53,7 +68,7 @@
       filter: grayscale(1) contrast(1.2);
     }
 
-    /* Workspace + Paper page */
+    /* ——— Workspace + Paper ——— */
     #workspace {
       display: flex;
       justify-content: center;
@@ -62,41 +77,41 @@
     }
 
     #manualFrame {
-      width: 850px;
-      background: #f8f8f8;
-      border-radius: 3px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, .35);
+      width: 860px;
+      background: var(--paper);
+      border-radius: 4px;
+      box-shadow: 0 0 24px rgba(0, 0, 0, .35);
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      border: 1px solid var(--line);
     }
 
-    /* Page header within paper */
+    /* ——— Page header + content ——— */
     #pageHeader {
-      background: #e8e8e8;
-      border-bottom: 1px solid #d0d0d0;
+      background: var(--paper-dk);
+      border-bottom: 1px solid var(--line);
       padding: 10px 18px;
       display: flex;
       justify-content: space-between;
-      color: #444;
+      color: var(--quiet);
       font-size: 14px;
+      letter-spacing: .2px;
     }
 
-    /* Page content area */
     #pageContent {
       flex: 1;
-      padding: 40px 56px;
+      padding: 38px 56px;
       line-height: 1.65;
       font-size: 16px;
-      color: #222;
+      color: var(--ink);
       overflow-y: auto;
-      white-space: pre-wrap;
     }
 
-    /* Controls footer */
+    /* ——— Footer controls ——— */
     #controls {
-      background: #e8e8e8;
-      border-top: 1px solid #d0d0d0;
+      background: var(--paper-dk);
+      border-top: 1px solid var(--line);
       padding: 10px;
       text-align: center;
     }
@@ -105,7 +120,7 @@
       padding: 8px 16px;
       border: 0;
       border-radius: 4px;
-      background: #444;
+      background: #4a4a4a;
       color: #fff;
       margin: 4px 6px;
       cursor: pointer;
@@ -113,10 +128,10 @@
     }
 
     button:hover {
-      background: #555;
+      background: #5a5a5a;
     }
 
-    /* Highlighting */
+    /* ——— Highlighting (no hint styles) ——— */
     .word {
       cursor: pointer;
       border-radius: 3px;
@@ -128,17 +143,99 @@
     }
 
     .phrase {
-      padding: 0 2px;
+      cursor: pointer;
       border-radius: 3px;
     }
 
-    /* subtle hint that it's 'special' */
     .phrase.hl {
       background: #ffcf4d;
       outline: 1px solid #caa034;
     }
 
-    /* Page fade-in */
+    /* ——— Section styling ——— */
+    h2.section {
+      margin: 18px 0 10px;
+      text-transform: uppercase;
+      font-size: 20px;
+      letter-spacing: .5px;
+      color: var(--accent-ink);
+      border-bottom: 2px solid var(--line);
+      padding-bottom: 6px;
+    }
+
+    h3.subsection {
+      margin: 16px 0 6px;
+      font-size: 17px;
+      color: var(--ink);
+      text-decoration: underline;
+      text-decoration-color: var(--line);
+    }
+
+    .smallcaps {
+      font-variant: small-caps;
+      letter-spacing: .3px;
+    }
+
+    /* Lists */
+    ul,
+    ol {
+      margin: 8px 0 12px 28px;
+    }
+
+    li {
+      margin: 2px 0;
+    }
+
+    /* ——— Satirical callouts ——— */
+    .callout {
+      background: #f3e9df;
+      border: 1px solid var(--line);
+      border-left: 6px solid var(--accent);
+      padding: 10px 12px;
+      margin: 14px 0;
+      color: var(--ink);
+    }
+
+    .callout .title {
+      color: var(--accent-ink);
+      font-weight: 700;
+      margin-right: 8px;
+    }
+
+    .quote {
+      background: #f1ebe2;
+      border-left: 4px solid #a38b6b;
+      padding: 8px 12px;
+      margin: 12px 0;
+      color: #3b332b;
+      font-style: italic;
+    }
+
+    /* Table of contents box */
+    .toc {
+      background: #f3eee5;
+      border: 1px solid var(--line);
+      padding: 12px 14px;
+      margin: 14px 0;
+    }
+
+    .toc ul {
+      list-style: none;
+      padding: 0;
+      margin: 6px 0 0 0;
+    }
+
+    .toc li {
+      margin: 2px 0;
+      color: var(--quiet);
+    }
+
+    .toc li::before {
+      content: "• ";
+      color: #a48b6f;
+    }
+
+    /* Fade on page change */
     .fade-in {
       animation: fadeIn .25s ease;
     }
@@ -156,7 +253,7 @@
     /* Feedback area */
     #feedback {
       text-align: center;
-      color: #c33;
+      color: var(--accent);
       font-weight: 600;
       margin: 8px 0 24px;
     }
@@ -174,7 +271,7 @@
     </div>
     <div id="toolbar-right">
       <img class="mascot"
-        src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M8 15s1.5-2 4-2 4 2 4 2'/><line x1='9' y1='9' x2='9.01' y2='9'/><line x1='15' y1='9' x2='15.01' y2='9'/></svg>"
+        src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23ddd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M8 15s1.5-2 4-2 4 2 4 2'/><line x1='9' y1='9' x2='9.01' y2='9'/><line x1='15' y1='9' x2='15.01' y2='9'/></svg>"
         alt="" />
       Hell Incorporated — Employee Manual (PDF)
     </div>
@@ -183,7 +280,7 @@
   <div id="workspace">
     <div id="manualFrame">
       <div id="pageHeader">
-        <div>Internal Document — H.Inc</div>
+        <div><span class="smallcaps">Internal Memorandum</span> — H.Inc Corporate Doctrine</div>
         <div id="pageNum">Page 1 / 1</div>
       </div>
 
@@ -201,7 +298,7 @@
 
   <script>
     /* ================================
-       TARGET PHRASES TO FIND (EXACT)
+       REQUIRED TARGETS (ALL must be highlighted)
        ================================ */
     const PRINCIPLES = [
       "Perpetuity is Productivity.",
@@ -210,96 +307,132 @@
       "Inquiry is Inefficiency.",
       "Procedure is Providence."
     ];
-    const MASCOT = "Damnation Dan";
+    // MUST highlight the 5 in the intro list + 5 in content, plus mascot
+    const REQUIRED_KEYS = [
+      // intro list
+      ...PRINCIPLES,
+      // body appearances
+      ...PRINCIPLES,
+      // mascot (match forgivingly in code; canonical key saved as this string)
+      "Damnation Dan"
+    ];
 
     /* ================================
-       MANUAL PAGES (YOUR TEXT)
-       Page 1 is the intro/instructions.
-       Subsequent pages are content.
+       PAGES: formatted with headings/lists/callouts
        ================================ */
     const PAGES = [
-      `(Instructions Note/Intro Page)
-Welcome, Newcomer! So you’ve decided (against your will) to join the hardworking folk here at Hell Incorporated. Even at your level of importance, it is pivotal that you understand your position and duties in your new forever home. Hell is a complicated and complex ecosystem of business and functionality that can only thrive with the help of every little demon (yes, even you!). To ensure that you completely and fully understand what it means to be working here, we have provided you with the all-encompassing worker’s manual for Hell. This manual covers the goals, aspirations, morals (or lack thereof), expectations, and values of Hell Incorporated. 
-Hell Incorporated encourages lives by five amazing principles:
-Perpetuity is Productivity.
-Compliance is Comfort.
-Activity is Achievement.
-Inquiry is Inefficiency.
-Procedure is Providence.
-These principles are mentioned periodically throughout the manual content. To ensure you have fully read and comprehend the manual and its valuable teachings, you must highlight the ALL areas where you find these five principles in the manual pages. Simply click the words to highlight them and submit your findings once you make it to the end of your manual reading. The alliteration should help… maybe!
-Oh, and a special other thing to look for is the Hell Incorporated mascot! Find him and highlight him to never be asked to look at this again!
-Good luck and don’t forget, we’re always watching!`,
+      `<h2 class="section">Instructions Note / Intro Page</h2>
+<p>Welcome, Newcomer! So you’ve decided (against your will) to join the hardworking folk here at Hell Incorporated. Even at your level of importance, it is pivotal that you understand your position and duties in your new forever home. Hell is a complicated and complex ecosystem of business and functionality that can only thrive with the help of every little demon (yes, even you!).</p>
+<p>To ensure that you completely and fully understand what it means to be working here, we have provided you with the all-encompassing worker’s manual for Hell. This manual covers the goals, aspirations, morals (or lack thereof), expectations, and values of Hell Incorporated.</p>
 
-      `WELCOME TO HELL
-This handbook was made so every demon could understand their responsibility and purpose at Hell Incorporated. Refer to the table of contents below:
-Why am I a demon? 
-What does it mean to be a demon?
-Is there a way out of here?
-Why is Hell a functioning company?
-Where is the bathroom?
-What are the roles of demons here?
-Am I stuck in this position forever?
-Why do we get a break time?
-Can I change clothes?
-What will happen if I refuse to work?`,
 
-      `Why am I a demon?
-Your presence in this dimension is not an anomaly. It is the logical conclusion of a complex, well-established universal system. You were judged by the Neutral Arbiter (Death) and found to have a soul too corrupted—or simply too heavy—to achieve the weightlessness required by our Celestial Competitors. The ensuing re-processing was mandatory to convert your useless human form into a productive infernal asset. Do not waste time reflecting on your mortal life; it is classified as "historical data," and H.Inc. does not tolerate historical data leakage. Trust the process. This system has operated for eons, and your existence today is proof of its flawless execution. For the system to be flawless, the rules must be final. Procedure is Providence.`,
+<h3 class="subsection">Hell Incorporated lives by five amazing principles:</h3>
 
-      `What does it mean to be a demon?
-It means belonging. It means stability. You are no longer burdened by the chaotic, inefficient whims of human free will, hope, or complex emotional structures. As a demon, you are a refined tool, driven by a pure, singular objective: the administrative upkeep of eternal damnation. Forget struggle; embrace the inevitability of the path laid out for you. Your job description is your identity. Your cubicle is your forever home. Your life is managed, scheduled, and monitored for maximum operational efficiency. The moment you stop questioning and simply assimilate, the pressure lifts. We find that the most compliant assets are also the least tormented. Compliance is Comfort.`,
+<ul>
+  <li>Perpetuity is Productivity.</li>
+  <li>Compliance is Comfort.</li>
+  <li>Activity is Achievement.</li>
+  <li>Inquiry is Inefficiency.</li>
+  <li>Procedure is Providence.</li>
+</ul>
 
-      `Is there a way out of here?
-This question reflects a fundamental misunderstanding of your contract. "Out" is a mortal concept related to finite spaces and time. This office, this Manual, and your tenure are all eternal. Our internal models show a statistical zero-percent chance of unauthorized exit. Any perceived "way out" is likely a temporal anomaly or a Recidivism Symptom (See Section 9.C: Therapy & Re-Processing). Asking this question requires your Supervisor to stop their vital work to respond to your existential crisis. That delay costs H.Inc. resources and lowers departmental metrics. Therefore, questioning established realities is not just disruptive; it is a drain on the entire organization. Inquiry is Inefficiency.`,
+<p>These principles are mentioned periodically throughout the manual content. To ensure you have fully read and comprehend the manual and its valuable teachings, you must highlight <strong>ALL</strong> instances where you find these five principles in this manual. Simply click the words to highlight them and submit your findings once you make it to the end of your manual reading.</p>
+<div class="quote">“The alliteration should help… maybe.”</div>
 
-      `Why is Hell a functioning company?
-Because suffering is a global commodity that requires management. Chaos is profitable, but unmanaged chaos is a liability. We exist to maintain the fine bureaucratic machinery that ensures every tormented soul meets its quarterly anguish quota. Our business model is based on Infinity. The ultimate goal is the acquisition of every single soul, which requires continuous, monitored expansion to overtake the Celestial Market Share. The goal is not to finish the work; the goal is to ensure the work lasts forever. That means the endless nature of our tasks is the actual product we sell. Perpetuity is Productivity.`,
+<div class="callout"><span class="title">A special bonus thing!:</span> Locate our mascot <strong>Damnation Dan</strong>. Highlight him to complete your assignment.</div>
 
-      `Where is the bathroom?
-"Relief Stations" are classified as non-essential infrastructure. Access is heavily restricted and is subject to departmental efficiency metrics. To locate the nearest Relief Station, please consult the Inter-Floor Utilities Map (Form 199-M-rev.4), which is digitally accessible on the Sisyphus II Terminal (Note: Form 199-M requires the H.Inc GIS App, which must be installed using the 47-step process detailed in Addendum 10.A: Software Installation). Under no circumstances should you interrupt another employee to ask directions. Relief Stations operate at a perpetual 2-hour backlog and require a pre-approved, time-stamped Bio-Excursion Pass (Form 55-B), which must be signed by three (3) different supervisors. Enjoy your break!`,
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ul>
+    <li>Why am I a demon?</li>
+    <li>What does it mean to be a demon?</li>
+    <li>Is there a way out of here?</li>
+    <li>Why is Hell a functioning company?</li>
+    <li>Where is the bathroom?</li>
+    <li>What are the roles of demons here?</li>
+    <li>Am I stuck in this position forever?</li>
+    <li>Why do we get a break time?</li>
+    <li>Can I change clothes?</li>
+    <li>What will happen if I refuse to work?</li>
+  </ul>
+</div>`,
 
-      `What are the roles of demons here?
-Your official job title is listed in your Onboarding Packet (Form 1-A). Your primary function is to perform the administrative task associated with that title. However, the true purpose of all demon roles, from Office Worker to Director, is to generate output. We value visible effort above all. Did you fill out that memo? Did you click 'Yes' on that submission form? Did you respond to that pointless email thread? That is what matters. Efficacy is secondary to effort. Always be doing, always be generating. The constant motion justifies the entire machine. In H.Inc, the volume of tasks you complete, regardless of their meaning, is your key performance indicator. Activity is Achievement.`,
+      `<h2 class="section">Welcome to Hell</h2>
+<p>This handbook was made so every demon could understand their responsibility and purpose at Hell Incorporated.</p>
+<div class="quote">“Remember: the manual is more binding than your soul.”</div>`,
 
-      `Am I stuck in this position forever?
-H.Inc is committed to the concept of "Career Longevity." Vertical and lateral promotions are available to those who achieve exemplary compliance scores and demonstrate a sufficient commitment to the tenets of Perpetuity and Inquiry is Inefficiency. To apply for a promotion, you must file a Statement of Ambition (Form 73-L), which requires notarized signatures from every colleague and supervisor in your sector. Upon submission, the form will be reviewed by the Department of Ascendance, which may or may not exist. While applications may take anywhere from three business days to three millennia to process, remember that the act of applying itself demonstrates valuable activity.`,
+      `<h2 class="section">Why am I a demon?</h2>
+  <p>Your presence in this dimension is not an anomaly. It is the logical conclusion of a complex, well-established universal system. You were judged by the Neutral Arbiter (Death) and found to have a soul too corrupted—or simply too heavy—to achieve the weightlessness required by our Celestial Competitors. The ensuing re-processing was mandatory to convert your useless human form into a productive infernal asset.</p>
+  <p>Do not waste time reflecting on your mortal life; it is classified as “historical data,” and H.Inc. does not tolerate historical data leakage. Trust the process. This system has operated for eons, and your existence today is proof of its flawless execution. For the system to be flawless, the rules must be final. Procedure is Providence.</p>
+  <div class="callout"><span class="title">⚠ Policy:</span> Historical data leakage results in immediate Form 33-B escalation.</div>`,
 
-      `Why do we get a break time?
-The four-minute Sustenance Interval is a regrettable necessity stemming from an archaic, non-negotiable decree from a long-defunct celestial body. It is not a reward. It is a scheduled, monitored period for mandatory documentation. Your true purpose here is to work, which is why the interval is precisely four (4) minutes long, not including the time required to queue for and complete the required sign-in/sign-out procedures (Forms 44-R and 44-S). Any unscheduled deviation from your workstation, including the ill-advised attempt to locate a "water cooler," is considered "Loitering with Infernal Intent" and will result in a Strike 1 violation.
+      `<h2 class="section">What does it mean to be a demon?</h2>
+<p>It means belonging. It means stability. You are no longer burdened by the chaotic, inefficient whims of human free will, hope, or complex emotional structures. As a demon, you are a refined tool, driven by a pure, singular objective: the administrative upkeep of eternal damnation.</p>
+<p>Forget struggle; embrace the inevitability of the path laid out for you. Your job description is your identity. Your cubicle is your forever home. Your life is managed, scheduled, and monitored for maximum operational efficiency. The moment you stop questioning and simply assimilate, the pressure lifts. We find that the most compliant assets are also the least tormented. Compliance is Comfort.</p>`,
 
-During sanctioned intervals, you may be greeted by our mascot, Damnation Dan, who will enthusiastically remind you to return to your station, complete Form 99-P (Post-Break Reflection), and rehearse the Five Principles aloud.`,
+      `<h2 class="section">Is there a way out of here?</h2>
+<p>This question reflects a fundamental misunderstanding of your contract. “Out” is a mortal concept related to finite spaces and time. This office, this Manual, and your tenure are all eternal. Our internal models show a statistical zero-percent chance of unauthorized exit. Any perceived “way out” is likely a temporal anomaly or a Recidivism Symptom (See Section 9.C: Therapy & Re-Processing).</p>
+<p>Asking this question requires your Supervisor to stop their vital work to respond to your existential crisis. That delay costs H.Inc. resources and lowers departmental metrics. Therefore, questioning established realities is not just disruptive; it is a drain on the entire organization. Inquiry is Inefficiency.</p>
+<div class="callout"><span class="title">📎 Reminder:</span> Curiosity is a cost center.</div>`,
 
-      `Can I change clothes?
-Absolutely not. The Grey Mandate (See also: Section 2.A of Vol. 1) is a non-negotiable, eternal policy. Your issued burlap jumpsuit and grey loafers are the standard uniform for all assets, regardless of former mortal station or current demon rank. The color grey is the absence of individuality, and the material is designed for maximum discomfort. Any attempt to modify, accessorize, or even wash your uniform is a direct act of Recidivism (reverting to inefficient human habits) and will be reported to Compliance. This uniformity is critical. Your personal identity is now corporate property.`,
+      `<h2 class="section">Why is Hell a functioning company?</h2>
+<p>Because suffering is a global commodity that requires management. Chaos is profitable, but unmanaged chaos is a liability. We exist to maintain the fine bureaucratic machinery that ensures every tormented soul meets its quarterly anguish quota.</p>
+<p>Our business model is based on Infinity. The ultimate goal is the acquisition of every single soul, which requires continuous, monitored expansion to overtake the Celestial Market Share. The goal is not to finish the work; the goal is to ensure the work lasts forever. That means the endless nature of our tasks is the actual product we sell. Perpetuity is Productivity.</p>`,
 
-      `What will happen if I refuse to work?
-Insubordination is inefficient. Your refusal to engage in your assigned duties will be treated as an unauthorized cessation of activity, requiring immediate and costly Re-Processing. This is not a punishment, but a necessary recalibration. You will be sent back to the lower layers for another cycle of Corruption and subsequent conversion into a more compliant, productive asset. We strongly encourage you to reflect upon the value of Compliance is Comfort before attempting any actions that necessitate your exposure to the Soul-Mulcher.`
+      `<h2 class="section">Where is the bathroom?</h2>
+<p>“Relief Stations” are classified as non-essential infrastructure. Access is heavily restricted and is subject to departmental efficiency metrics. To locate the nearest Relief Station, please consult the Inter-Floor Utilities Map (Form 199-M-rev.4), which is digitally accessible on the Sisyphus II Terminal (Note: Form 199-M requires the H.Inc GIS App, which must be installed using the 47-step process detailed in Addendum 10.A: Software Installation).</p>
+<p>Under no circumstances should you interrupt another employee to ask directions. Relief Stations operate at a perpetual 2-hour backlog and require a pre-approved, time-stamped Bio-Excursion Pass (Form 55-B), which must be signed by three (3) different supervisors. Enjoy your break!</p>
+<div class="quote">“Relief is a privilege, not a right.”</div>`,
+
+      `<h2 class="section">What are the roles of demons here?</h2>
+<p>Your official job title is listed in your Onboarding Packet (Form 1-A). Your primary function is to perform the administrative task associated with that title. However, the true purpose of all demon roles, from Office Worker to Director, is to generate output.</p>
+<ul>
+  <li>Did you file that memo?</li>
+  <li>Did you click “Yes” on that submission form?</li>
+  <li>Did you respond to that pointless email thread?</li>
+</ul>
+<p>That is what matters. Efficacy is secondary to effort. Always be doing, always be generating. The constant motion justifies the entire machine. In H.Inc, the volume of tasks you complete, regardless of their meaning, is your key performance indicator. Activity is Achievement.</p>`,
+
+      `<h2 class="section">Am I stuck in this position forever?</h2>
+<p>H.Inc is committed to the concept of “Career Longevity.” Vertical and lateral promotions are available to those who achieve exemplary compliance scores and demonstrate a sufficient commitment to the tenets of Perpetuity and Inquiry is Inefficiency.</p>
+<p>To apply for a promotion, you must file a Statement of Ambition (Form 73-L), which requires notarized signatures from every colleague and supervisor in your sector. Upon submission, the form will be reviewed by the Department of Ascendance, which may or may not exist. While applications may take anywhere from three business days to three millennia to process, remember that the act of applying itself demonstrates valuable activity.</p>
+<div class="callout"><span class="title">⚠ HR Notice:</span> Non-existent departments remain fully enforceable.</div>`,
+
+      `<h2 class="section">Why do we get a break time?</h2>
+<p>The four-minute Sustenance Interval is a regrettable necessity stemming from an archaic, non-negotiable decree from a long-defunct celestial body. It is not a reward. It is a scheduled, monitored period for mandatory documentation.</p>
+<ol>
+  <li>Sign in (Form 44-R).</li>
+  <li>Maintain a regulated pace of 3.3 steps per second.</li>
+  <li>Sign out (Form 44-S) and submit Form 99-P (Post-Break Reflection).</li>
+</ol>
+<p>Any unscheduled deviation from your workstation is considered “Loitering with Infernal Intent” and will result in a Strike 1 violation.</p>
+<div class="quote">Damnation Dan waves enthusiastically and reminds you to rehearse the Five Principles aloud.</div>`,
+
+      `<h2 class="section">Can I change clothes?</h2>
+<p>Absolutely not. The Grey Mandate (See also: Section 2.A of Vol. 1) is a non-negotiable, eternal policy. Your issued burlap jumpsuit and grey loafers are the standard uniform for all assets, regardless of former mortal station or current demon rank. The color grey is the absence of individuality, and the material is designed for maximum discomfort.</p>
+<p>Any attempt to modify, accessorize, or even wash your uniform is a direct act of Recidivism and will be reported to Compliance. This uniformity is critical. Your personal identity is now corporate property.</p>`,
+
+      `<h2 class="section">What will happen if I refuse to work?</h2>
+<p>Insubordination is inefficient. Your refusal to engage in your assigned duties will be treated as an unauthorized cessation of activity, requiring immediate and costly Re-Processing. This is not a punishment, but a necessary recalibration.</p>
+<p>You will be sent back to the lower layers for another cycle of Corruption and subsequent conversion into a more compliant, productive asset. We strongly encourage you to reflect upon the value of Compliance is Comfort. before attempting any actions that necessitate your exposure to the Soul-Mulcher.</p>
+<div class="callout"><span class="title">⚠ Final Admonition:</span> Progress will be <em>deleted</em> for incomplete compliance.</div>`
     ];
 
     /* ================================
-       RENDERING + HIGHLIGHT LOGIC
+       RENDERING + HIGHLIGHT LOGIC (HTML-aware)
        ================================ */
-    const REQUIRED_KEYS = [
-      // table of contents list
-      "Perpetuity is Productivity.",
-      "Compliance is Comfort.",
-      "Activity is Achievement.",
-      "Inquiry is Inefficiency.",
-      "Procedure is Providence.",
-      // in-manual repetitions
-      "Perpetuity is Productivity.",
-      "Compliance is Comfort.",
-      "Activity is Achievement.",
-      "Inquiry is Inefficiency.",
-      "Procedure is Providence.",
-      // mascot
-      "Damnation Dan,"
-    ];
 
-
+    /* State */
     let currentPage = 0;
-    let highlightedMap = new Map(); // key: `${pageIndex}:${tokenKey}` -> true
-    let phraseHighlights = new Set(); // stores exact phrases highlighted (from REQUIRED_KEYS)
+    /* Track normal word highlights (fun) */
+    const wordHighlights = new Set(); // keys like `${page}:w:${ord}`
+    /* Track phrase instance highlights */
+    const highlightedInstances = new Set(); // `${page}:${phraseIdx}:${occ}`
+    /* Required counts (intro+body duplicates) */
+    const requiredCounts = new Map();
+    REQUIRED_KEYS.forEach(k => requiredCounts.set(k, (requiredCounts.get(k) || 0) + 1));
+    /* User counts */
+    const userCounts = new Map(); // phrase -> count
 
     const pageNumEl = document.getElementById("pageNum");
     const pageContentEl = document.getElementById("pageContent");
@@ -308,121 +441,139 @@ Insubordination is inefficient. Your refusal to engage in your assigned duties w
     /* Escape for regex */
     function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 
-    /* Prepare text: wrap target phrases as single tokens (placeholders), then render words */
-    function renderPage() {
-      pageContentEl.classList.remove("fade-in");
-      void pageContentEl.offsetWidth; // reset animation
-      pageContentEl.classList.add("fade-in");
-      pageContentEl.innerHTML = "";
-
-      const raw = PAGES[currentPage];
-      // Create placeholders for each target phrase so they become single tokens
-      let text = raw;
-      const placeholders = []; // { key, phrase, token }
-
-      REQUIRED_KEYS.forEach((phrase, idx) => {
-        const token = `__PHRASE_${idx}__`;
-        const re = new RegExp(esc(phrase), "g");
-        if (re.test(text)) {
-          text = text.replace(re, token);
-          placeholders.push({ key: phrase, phrase, token });
-        }
-      });
-
-      // Split by spaces to form tokens, then turn placeholders back into single spans
-      const parts = text.split(/(\s+)/); // keep spaces
-      parts.forEach(part => {
-        if (part.trim() === "") {
-          pageContentEl.appendChild(document.createTextNode(part));
-          return;
-        }
-
-        // Is this a placeholder (or a placeholder with adjacent punctuation)?
-        const ph = placeholders.find(p => part === p.token || part.includes(p.token));
-        if (ph) {
-          // If the token has surrounding characters (like punctuation), preserve them.
-          const idx = part.indexOf(ph.token);
-          const before = part.slice(0, idx);
-          const after = part.slice(idx + ph.token.length);
-
-          if (before) pageContentEl.appendChild(document.createTextNode(before));
-
-          const span = document.createElement("span");
-          span.textContent = ph.phrase;
-          span.className = "phrase req";
-          span.dataset.key = ph.key;
-          const mapKey = `${currentPage}:${ph.key}`;
-          if (highlightedMap.get(mapKey)) {
-            span.classList.add("hl");
-          }
-          span.addEventListener("click", () => {
-            // toggle highlight
-            const curr = !!highlightedMap.get(mapKey);
-            if (curr) {
-              highlightedMap.delete(mapKey);
-              span.classList.remove("hl");
-              phraseHighlights.delete(ph.key);
-            } else {
-              highlightedMap.set(mapKey, true);
-              span.classList.add("hl");
-              phraseHighlights.add(ph.key);
-            }
-          });
-          pageContentEl.appendChild(span);
-
-          if (after) pageContentEl.appendChild(document.createTextNode(after));
-          // add a space so spacing remains consistent (we split kept spaces separately)
-          pageContentEl.appendChild(document.createTextNode(" "));
-          return;
-        }
-
-        // Otherwise, normal word (still clickable for fun, but doesn't count toward win)
-        const span = document.createElement("span");
-        span.textContent = part;
-        span.className = "word";
-        const mapKey = `${currentPage}:${part}`;
-        if (highlightedMap.get(mapKey)) span.classList.add("hl");
-        span.addEventListener("click", () => {
-          const curr = !!highlightedMap.get(mapKey);
-          if (curr) {
-            highlightedMap.delete(mapKey);
-            span.classList.remove("hl");
-          } else {
-            highlightedMap.set(mapKey, true);
-            span.classList.add("hl");
-          }
-        });
-        pageContentEl.appendChild(span);
-      });
-
-      pageNumEl.textContent = `Page ${currentPage + 1} / ${PAGES.length}`;
-      feedbackEl.textContent = "";
+    /* Build forgiving regex for a required phrase */
+    function phraseRegex(phrase) {
+      if (phrase === "Damnation Dan") {
+        return new RegExp("\\bDamnation\\s+Dan\\b", "g");
+      }
+      // allow optional trailing period
+      const safe = esc(phrase).replace(/\\\.$/, "\\.?");
+      return new RegExp(safe, "g");
     }
 
-    /* Navigation */
-    document.getElementById("prevPage").addEventListener("click", () => {
-      if (currentPage > 0) currentPage--;
-      renderPage();
-    });
-    document.getElementById("nextPage").addEventListener("click", () => {
-      if (currentPage < PAGES.length - 1) currentPage++;
-      renderPage();
-    });
+    /* Render page with HTML preserved, then wrap tokens */
+    function renderPage() {
+      pageContentEl.classList.remove("fade-in"); void pageContentEl.offsetWidth; pageContentEl.classList.add("fade-in");
+      feedbackEl.textContent = "";
 
-    /* Submission */
+      // 1) Insert placeholders for each required phrase (supports duplicates)
+      let html = PAGES[currentPage];
+      const tokens = []; // { idx, phrase, token }
+      REQUIRED_KEYS.forEach((phrase, idx) => {
+        const token = `__PHRASE_${idx}__`;
+        const re = phraseRegex(phrase);
+        if (re.test(html)) {
+          html = html.replace(re, token);
+          tokens.push({ idx, phrase, token });
+        }
+      });
+
+      // 2) Replace placeholders with span HTML, assign deterministic instance ids per occurrence on this page
+      //    We’ll count by how many times each token appears while replacing.
+      const occMap = new Map(); // token -> occ
+      tokens.forEach(({ idx, phrase, token }) => {
+        let occ = 0;
+        const reTok = new RegExp(token, "g");
+        html = html.replace(reTok, () => {
+          const inst = `${currentPage}:${idx}:${occ++}`;
+          return `<span class="phrase" data-key="${phrase}" data-inst="${inst}">${phrase}</span>`;
+        });
+      });
+
+      // 3) Put HTML into the page
+      pageContentEl.innerHTML = html;
+
+      // 4) Attach phrase listeners & restore visual state
+      pageContentEl.querySelectorAll(".phrase").forEach(span => {
+        const inst = span.dataset.inst;
+        const key = span.dataset.key;
+        if (highlightedInstances.has(inst)) {
+          span.classList.add("hl");
+        }
+        span.addEventListener("click", () => {
+          if (span.classList.contains("hl")) {
+            span.classList.remove("hl");
+            highlightedInstances.delete(inst);
+            userCounts.set(key, Math.max(0, (userCounts.get(key) || 0) - 1));
+          } else {
+            span.classList.add("hl");
+            highlightedInstances.add(inst);
+            userCounts.set(key, (userCounts.get(key) || 0) + 1);
+          }
+        });
+      });
+
+      // 5) Wrap remaining text nodes’ words with .word spans (click-to-highlight for fun)
+      wrapTextNodesForWords(pageContentEl);
+
+      // 6) Page indicator
+      pageNumEl.textContent = `Page ${currentPage + 1} / ${PAGES.length}`;
+    }
+
+    /* Walk text nodes and wrap words (skip inside .phrase) */
+    function wrapTextNodesForWords(root) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          if (node.parentElement && node.parentElement.closest(".phrase")) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+
+      let ord = 0;
+      nodes.forEach(node => {
+        const frag = document.createDocumentFragment();
+        const parts = node.nodeValue.split(/(\s+)/);
+        parts.forEach(part => {
+          if (!part) return;
+          if (/\s+/.test(part)) {
+            frag.appendChild(document.createTextNode(part));
+          } else {
+            const key = `${currentPage}:w:${ord++}`;
+            const span = document.createElement("span");
+            span.className = "word";
+            if (wordHighlights.has(key)) span.classList.add("hl");
+            span.textContent = part;
+            span.addEventListener("click", () => {
+              if (span.classList.contains("hl")) {
+                span.classList.remove("hl");
+                wordHighlights.delete(key);
+              } else {
+                span.classList.add("hl");
+                wordHighlights.add(key);
+              }
+            });
+            frag.appendChild(span);
+          }
+        });
+        node.parentNode.replaceChild(frag, node);
+      });
+    }
+
+    /* Nav */
+    document.getElementById("prevPage").addEventListener("click", () => { if (currentPage > 0) { currentPage--; renderPage(); } });
+    document.getElementById("nextPage").addEventListener("click", () => { if (currentPage < PAGES.length - 1) { currentPage++; renderPage(); } });
+
+    /* Submit check — require counts for ALL required phrases (including duplicates) */
     document.getElementById("submitHighlights").addEventListener("click", () => {
-      // Must include all five principles + mascot
-      const uniqueKeys = new Set(REQUIRED_KEYS);
-      const missing = [...uniqueKeys].filter(k => !phraseHighlights.has(k));
+      const missing = [];
+      requiredCounts.forEach((need, phrase) => {
+        const have = userCounts.get(phrase) || 0;
+        if (have < need) missing.push(`${phrase} (${have}/${need})`);
+      });
 
       if (missing.length === 0) {
         document.body.innerHTML =
-          "<h1 style='color:#f44; text-align:center; margin-top:22vh; font-size:64px;'>Congratulations! You understand Hell.</h1>";
+          "<h1 style='color:#b22323; text-align:center; margin-top:22vh; font-size:64px;'>Congratulations! You understand Hell.</h1>";
       } else {
-        alert("Incorrect or incomplete highlights! Returning you to Page 1.");
+        alert("Submission incomplete. Please review all material carefully.\nMissing:\n- " + missing.join("\n- "));
+        // Reset (bureaucratic cruelty)
         currentPage = 0;
-        highlightedMap.clear();
-        phraseHighlights.clear();
+        wordHighlights.clear();
+        highlightedInstances.clear();
+        userCounts.clear();
         renderPage();
       }
     });
