@@ -565,8 +565,21 @@
       });
 
       if (missing.length === 0) {
-        document.body.innerHTML =
-          "<h1 style='color:#b22323; text-align:center; margin-top:22vh; font-size:64px;'>Congratulations! You understand Hell.</h1>";
+        document.body.innerHTML = `
+    <div style="text-align:center; margin-top:22vh;">
+      <h1 style="color:#b22323; font-size:64px; margin-bottom:40px;">Congratulations! You understand Hell.</h1>
+      <button id="nextAssignment" 
+        style="padding:14px 28px; background:#b22323; color:#fff; font-size:18px; border:none; border-radius:6px; cursor:pointer; transition:background 0.3s;">
+        Start Next Work Assignment
+      </button>
+    </div>
+  `;
+        const nextBtn = document.getElementById("nextAssignment");
+        nextBtn.addEventListener("mouseover", () => nextBtn.style.background = "#8f1b1b");
+        nextBtn.addEventListener("mouseout", () => nextBtn.style.background = "#b22323");
+        nextBtn.addEventListener("click", () => {
+          window.location.href = "popup.html";
+        });
       } else {
         alert("Submission incomplete. Please review all material carefully.\nMissing:\n- " + missing.join("\n- "));
         // Reset (bureaucratic cruelty)

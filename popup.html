@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pop-Up Purgatory — Hell Incorporated</title>
+  <style>
+    :root {
+      --paper: #f6f1e7;
+      --paper-dk: #efe6d8;
+      --ink: #2a2a2a;
+      --line: #c9bba6;
+      --accent: #b22323;
+      --accent-dk: #8f1b1b;
+      --workspace: #e9e2d0;
+    }
+
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: var(--workspace);
+      color: var(--ink);
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    /* Toolbar */
+    #toolbar {
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 18px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+    }
+
+    /* Workspace + frame */
+    #workspace {
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+      min-height: calc(100vh - 60px);
+    }
+
+    #frame {
+      width: 860px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      box-shadow: 0 0 24px rgba(0, 0, 0, .35);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #frameHeader {
+      background: var(--paper-dk);
+      border-bottom: 1px solid var(--line);
+      padding: 10px 18px;
+      font-size: 14px;
+      color: #6c6257;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #content {
+      padding: 30px 40px;
+      min-height: 420px;
+    }
+
+    .centered {
+      text-align: center;
+      margin: 40px auto;
+      max-width: 620px;
+      line-height: 1.6;
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px 22px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .btn:hover {
+      background: var(--accent-dk);
+    }
+
+    .form-card {
+      background: #fdf9f2;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 20px 22px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+    }
+
+    h2 {
+      color: var(--accent-dk);
+      margin: 0 0 8px;
+    }
+
+    .row {
+      margin: 6px 0;
+    }
+
+    .label {
+      font-weight: 600;
+    }
+
+    .choices {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .choice-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .choice-btn.selected {
+      outline: 2px solid var(--accent);
+      background: #fff5f2;
+    }
+
+    #submitBtn {
+      margin-top: 16px;
+      opacity: .6;
+      pointer-events: none;
+    }
+
+    #submitBtn.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: none;
+      z-index: 900;
+    }
+
+    .popup {
+      position: fixed;
+      width: 420px;
+      max-width: calc(100vw - 40px);
+      background: #fdf9f2;
+      border: 2px solid var(--accent);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+      z-index: 1000;
+      animation: popIn .2s ease;
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(.92);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .popup-header {
+      background: var(--accent);
+      color: #fff;
+      padding: 8px 12px;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      font-weight: 700;
+    }
+
+    .popup-body {
+      padding: 18px 18px 8px 18px;
+      font-size: 16px;
+    }
+
+    .popup-buttons {
+      padding: 10px 18px 18px;
+      text-align: right;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .popup-buttons button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .popup-buttons button:hover {
+      background: var(--accent-dk);
+    }
+
+    #processing {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      color: #fff;
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      gap: 18px;
+    }
+
+    #processing h1 {
+      color: var(--accent);
+      font-size: 40px;
+      margin: 0;
+    }
+
+    .bar {
+      width: 60%;
+      max-width: 560px;
+      height: 14px;
+      background: #222;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #444;
+    }
+
+    .bar>div {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width .28s ease;
+    }
+
+    .pct {
+      font-family: monospace;
+      color: #ddd;
+    }
+
+    .end {
+      text-align: center;
+      margin: 60px auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="toolbar">
+    <div>Hell Incorporated — Soul Processing Terminal</div>
+    <div>Department of Data Purgation</div>
+  </div>
+
+  <div id="workspace">
+    <div id="frame">
+      <div id="frameHeader">
+        <div>Internal Document — H.Inc</div>
+        <div id="stepLabel">Assignment Brief</div>
+      </div>
+      <div id="content">
+        <div class="centered" id="intro">
+          <h2>Department of Data Purgation — Soul Processing Assignment</h2>
+          <p>Welcome to the Soul Sorting Division. For each incoming file, review the details and select the most
+            suitable next step:</p>
+          <ul style="text-align:left; display:inline-block; margin:12px auto 6px;">
+            <li><strong>Forward to Torment Division</strong> — for souls displaying initiative, passion, or managerial
+              potential.</li>
+            <li><strong>Flag for Eternal Review</strong> — for souls exhibiting hesitation, empathy, or general
+              confusion.</li>
+          </ul>
+          <p style="font-size:14px; color:#6c6257;">Accuracy is mandatory. Indecision will be noted in your file.</p>
+          <button class="btn" id="beginBtn">Begin Work Assignment</button>
+        </div>
+        <div id="formWrap" style="display:none;">
+          <div class="form-card">
+            <h2>Soul Intake Form</h2>
+            <div class="row"><span class="label">Name:</span> <span id="soulName"></span></div>
+            <div class="row"><span class="label">Primary Sin:</span> <span id="soulSin"></span></div>
+            <div class="row"><span class="label">Performance Summary:</span> <span id="soulSummary"></span></div>
+            <div class="row"><span class="label">Temperament:</span> <span id="soulTemp"></span></div>
+            <div class="choices">
+              <button class="choice-btn" id="optForward">➡ Forward to Torment Division</button>
+              <button class="choice-btn" id="optReview">🗂 Flag for Eternal Review</button>
+            </div>
+            <button class="btn" id="submitBtn">Submit Soul for Processing</button>
+          </div>
+        </div>
+        <div id="endWrap" style="display:none;" class="end">
+          <h2 style="color:var(--accent-dk); font-size:36px; margin-bottom:8px;">All Souls Processed</h2>
+          <p>It's break time!</p>
+          <button class="btn" id="proceedBtn">Start Break</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="overlay"></div>
+
+  <div id="processing">
+    <h1>PROCESSING SOUL DATA…</h1>
+    <div class="bar">
+      <div id="barFill"></div>
+    </div>
+    <div class="pct" id="pct">0%</div>
+  </div>
+
+  <script>
+    const firstNames = ["Milton", "Beatrice", "Clive", "Henrietta", "Eugene", "Marla", "Vesper", "Giles", "Ophelia", "Rufus", "Darla", "Ignatius", "Agnes", "Quentin", "Lavinia"];
+    const lastNames = ["Grievance", "Doomkiss", "Crumb", "Blight", "Screech", "Nopewell", "Ledger", "Fretwell", "Soot", "Bitter", "Knell", "Prattle", "Cobb", "Grudge", "Snarl"];
+    const sins = [
+      "Excessive Meeting Scheduling", "Weaponized Positivity", "Spreadsheet Worship", "Petty Embezzlement",
+      "Infinite Reply-All", "Malicious Compliance", "Backlog Hoarding", "Synergy Evangelism", "Ambition Leeching",
+      "Lunch Thievery", "Temptation Marketing", "Vision Statement Plagiarism"
+    ];
+    const temperaments = ["Smug", "Vacant", "Overly apologetic", "Managerial", "Combative", "Eager to please", "Confused but confident", "Chronically sarcastic"];
+    const summaryFragmentsA = ["Filed", "Submitted", "Escalated", "Drafted", "Reformatted", "Cross-checked", "Misdelivered", "Encrypted", "Stapled", "Stamped"];
+    const summaryFragmentsB = ["48 memos about stapler allocation", "13 synergy alignment agendas", "a 900-page risk matrix", "an email with no body and 37 attachments", "a calendar invite for yesterday", "a spreadsheet of passwords titled 'passwords'", "performance reports with lorem ipsum"];
+    const summaryFragmentsC = ["without reading any inputs.", "while cc'ing the entire office.", "then denied knowledge of doing so.", "and requested overtime for it.", "as a show of initiative.", "with strong eye contact."];
+
+    function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function fullName() { return `${rand(firstNames)} ${rand(lastNames)}`; }
+    function randomSummary() { return `${rand(summaryFragmentsA)} ${rand(summaryFragmentsB)} ${rand(summaryFragmentsC)}`; }
+
+    const popupSequences = [
+      [
+        ["Are you sure you want to submit?", "No", "Yes"],
+        ["Are you really sure?", "No", "Yes"],
+        ["Like super positive?", "No", "Yes"],
+        ["100%?", "No", "Yes"],
+        ["It’s not too late to go back.", "I'll go back", "No, I'm good"],
+        ["Did you even read over it?", "No", "Yes"],
+        ["I don’t believe you.", "Okay fine, I’ll go back!", "Well, it's true"]
+      ],
+      [["Should I just let you move on?", "I'll go back just to get away from you", "Yes!"], ["Are you confident in this?", "No", "Yes"], ["Think about it one more time.", "Okay?", "I don't want to"], ["Did you check section 4B?", "I think I missed it", "There is no section 4B"], ["That’s a lot of responsibility…", "I should be sure", "I guess so?"], ["You still sure?", "No", "Yes"]],
+      [["I don’t trust your judgement!", "Fine, I’ll go back!", "Get over it"], ["That didn’t sound convincing.", "Okay fine", "Yes it did!"], ["You’re new here, aren’t you?", "You're right, I should check", "So?"], ["That’s cute. Try again.", "Fine", "Never!"], ["Do you even know what you’re doing?", "No", "Absolutely"]],
+      [["You’re new so you should definitely be more sure.", "You’re right", "I am sure"], ["You probably forgot a step.", "I'll go back", "No I didn’t"], ["I saw that hesitation.", "You’re right", "What hesitation?"], ["Are you rushing again?", "Okay, I’ll slow down", "I'm doing it in perfect timing"]],
+      [["You are really stubborn, huh?", "No, I listen!", "Yep!"], ["You know, I admire the persistence.", "Thanks, you win now", "I’m not stopping"], ["But seriously, reconsider.", "Okay, fine", "Never"], ["Hell’s HR will hear about this.", "I'm going back", "You don't scare me!"], ["It feels like you're just saying yes to move on", "I'm not that stubborn", "So what?"]]
+    ];
+    const fallbackPopup = ["I won’t give up until you check again.", "Okay, I’ll go back", "Me either"];
+
+    const beginBtn = document.getElementById("beginBtn");
+    const formWrap = document.getElementById("formWrap");
+    const intro = document.getElementById("intro");
+    const stepLabel = document.getElementById("stepLabel");
+    const nameEl = document.getElementById("soulName");
+    const sinEl = document.getElementById("soulSin");
+    const summaryEl = document.getElementById("soulSummary");
+    const tempEl = document.getElementById("soulTemp");
+    const optForward = document.getElementById("optForward");
+    const optReview = document.getElementById("optReview");
+    const submitBtn = document.getElementById("submitBtn");
+    const endWrap = document.getElementById("endWrap");
+    const proceedBtn = document.getElementById("proceedBtn");
+    const overlay = document.getElementById("overlay");
+    const processing = document.getElementById("processing");
+    const barFill = document.getElementById("barFill");
+    const pctEl = document.getElementById("pct");
+
+    let formIndex = 0;
+    const totalForms = 5;
+    let choice = null;
+    let hasReturned = false;
+    let popupIndex = 0;
+
+    beginBtn.addEventListener("click", () => {
+      intro.style.display = "none";
+      formWrap.style.display = "block";
+      stepLabel.textContent = `Form ${formIndex + 1} of ${totalForms}`;
+      loadForm();
+    });
+
+    function loadForm() {
+      choice = null;
+      hasReturned = false;
+      popupIndex = 0;
+      submitBtn.classList.remove("active");
+      optForward.classList.remove("selected");
+      optReview.classList.remove("selected");
+
+      nameEl.textContent = fullName();
+      sinEl.textContent = rand(sins);
+      summaryEl.textContent = randomSummary();
+      tempEl.textContent = rand(temperaments);
+    }
+
+    function markChoice(which) {
+      choice = which;
+      optForward.classList.toggle("selected", which === "forward");
+      optReview.classList.toggle("selected", which === "review");
+      submitBtn.classList.add("active");
+    }
+    optForward.addEventListener("click", () => markChoice("forward"));
+    optReview.addEventListener("click", () => markChoice("review"));
+
+    submitBtn.addEventListener("click", () => {
+      if (!submitBtn.classList.contains("active")) return;
+      if (formIndex >= totalForms) return;
+
+      if (hasReturned) {
+        instantProcessing(() => {
+          formIndex++;
+          if (formIndex < totalForms) {
+            stepLabel.textContent = `Form ${formIndex + 1} of ${totalForms}`;
+            loadForm();
+          } else showEnd();
+        });
+      } else startPopupChain();
+    });
+
+    function startPopupChain() {
+      overlay.style.display = "block";
+      popupIndex = 0;
+      openPopup(...getPopupTuple(popupIndex));
+    }
+
+    function getPopupTuple(idx) {
+      const seq = popupSequences[formIndex] || [];
+      if (idx < seq.length) return seq[idx];
+      return fallbackPopup;
+    }
+
+    function openPopup(text, leftLabel, rightLabel) {
+      const pop = document.createElement("div");
+      pop.className = "popup";
+      // staggered offsets
+      const offsetX = (Math.random() * 30 - 15) + popupIndex * 4;
+      const offsetY = (Math.random() * 20 - 10) + popupIndex * 4;
+      pop.style.left = `calc(50% + ${offsetX}px)`;
+      pop.style.top = `calc(50% + ${offsetY}px)`;
+      pop.innerHTML = `
+        <div class="popup-header">⚠ Confirmation Required</div>
+        <div class="popup-body">${text}</div>
+        <div class="popup-buttons">
+          <button class="left">${leftLabel}</button>
+          <button class="right">${rightLabel}</button>
+        </div>
+      `;
+      document.body.appendChild(pop);
+
+      const left = pop.querySelector(".left");
+      const right = pop.querySelector(".right");
+
+      left.addEventListener("click", () => {
+        hasReturned = true;
+        clearAllPopups();
+        overlay.style.display = "none";
+      });
+
+      right.addEventListener("click", () => {
+        popupIndex++;
+        // open next popup in the sequence (or fallback)
+        openPopup(...getPopupTuple(popupIndex));
+        // slightly darken the overlay as the chain progresses
+        const now = Math.min(0.35 + popupIndex * 0.05, 0.75);
+        overlay.style.background = `rgba(0, 0, 0, ${now})`;
+      });
+    }
+
+    function clearAllPopups() {
+      document.querySelectorAll(".popup").forEach(p => p.remove());
+      overlay.style.background = "rgba(0,0,0,0.35)";
+    }
+
+    function instantProcessing(done) {
+      processing.style.display = "flex";
+      barFill.style.width = "0%";
+      pctEl.textContent = "0%";
+      const steps = [13, 39, 66, 94, 100];
+      let i = 0;
+      const tick = () => {
+        if (i >= steps.length) {
+          processing.style.display = "none";
+          done();
+          return;
+        }
+        const pct = steps[i++];
+        barFill.style.width = pct + "%";
+        pctEl.textContent = pct + "%";
+        setTimeout(tick, pct === 100 ? 300 : 400);
+      };
+      setTimeout(tick, 150);
+    }
+
+    function showEnd() {
+      formWrap.style.display = "none";
+      endWrap.style.display = "block";
+      stepLabel.textContent = "Assignment Complete";
+    }
+
+    proceedBtn.addEventListener("click", () => {
+      window.location.href = "break.html";
+    });
+  </script>
+</body>
+
+</html>
