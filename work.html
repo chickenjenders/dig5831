@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hell OS — Soul Sorting — Workstation</title>
+  <style>
+    :root {
+      --bg: #efe8df;
+      --ink: #26221e;
+      --muted: #8a7f76;
+      --accent: #b22323;
+      --panel: #fbf6ef;
+      --danger: #d33;
+      --ok: #2b8a2b;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(#eee, #e6ddd3);
+      color: var(--ink);
+    }
+
+    /* Frame */
+    .desktop {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .workspace {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 28px;
+      box-sizing: border-box;
+      gap: 20px;
+    }
+
+    .window {
+      width: 900px;
+      background: var(--panel);
+      border: 1px solid #d6cfc6;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .18);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .titlebar {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #efe6db;
+      border-bottom: 1px solid #dccfca;
+      align-items: center;
+    }
+
+    .titlebar .left {
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .titlebar .right {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .content {
+      padding: 18px;
+      display: flex;
+      gap: 18px;
+    }
+
+    /* Left: Sorting panel */
+    .panel {
+      background: white;
+      border: 1px solid #e6dfd8;
+      padding: 14px;
+      border-radius: 6px;
+      box-shadow: inset 0 1px 0 rgba(0, 0, 0, .02);
+    }
+
+    .sort-panel {
+      width: 520px;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .soul-card {
+      border: 1px dashed #e1d7cf;
+      padding: 12px;
+      border-radius: 6px;
+      background: #fffaf7;
+    }
+
+    .soul-name {
+      font-weight: 700;
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+
+    .soul-meta {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .soul-note {
+      font-size: 14px;
+      line-height: 1.35;
+      color: #2f2b27;
+      margin-bottom: 10px;
+    }
+
+    .dept-list {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .dept-btn {
+      padding: 8px 12px;
+      background: #f6f0ea;
+      border: 1px solid #e1d7cf;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .dept-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .submit-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .submit-btn {
+      background: var(--accent);
+      color: white;
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .submit-btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    /* Right: Dashboard */
+    .dash {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .widget {
+      background: #fff;
+      border: 1px solid #e6dfd8;
+      padding: 12px;
+      border-radius: 6px;
+    }
+
+    .meter {
+      height: 12px;
+      width: 100%;
+      background: #eee;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #e6dfd8;
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width .4s linear;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stat-big {
+      font-weight: 800;
+    }
+
+    /* Task bar */
+    .taskbar {
+      height: 56px;
+      background: #e9e0d6;
+      border-top: 1px solid #d6cfc6;
+      display: flex;
+      align-items: center;
+      padding: 8px 14px;
+      gap: 12px;
+    }
+
+    .task-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #fff;
+      border: 1px solid #e1d7cf;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .task-icon img {
+      width: 22px;
+      height: 22px;
+      opacity: .95;
+    }
+
+    .badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: var(--danger);
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .18);
+    }
+
+    /* small toast */
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 86px;
+      background: #fff;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #e1d7cf;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .18);
+      display: none;
+    }
+
+    /* Inbox window */
+    .inbox-modal {
+      position: fixed;
+      left: 50%;
+      top: 40%;
+      transform: translate(-50%, -40%);
+      width: 720px;
+      max-width: 92%;
+      background: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+      border-radius: 8px;
+      overflow: hidden;
+      display: none;
+      z-index: 50;
+    }
+
+    .inbox-head {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #f6f0ea;
+      border-bottom: 1px solid #e1d7cf;
+    }
+
+    .mail-list {
+      max-height: 360px;
+      overflow: auto;
+    }
+
+    .mail-item {
+      padding: 12px 14px;
+      border-bottom: 1px solid #f0e7de;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .mail-item.unread {
+      background: linear-gradient(90deg, #fffaf7, #fff);
+    }
+
+    .mail-item .from {
+      font-weight: 700;
+    }
+
+    .mail-body {
+      max-width: 64%;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mail-actions {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .mail-view {
+      padding: 14px;
+      border-top: 1px solid #efe6db;
+      background: #fffdfb;
+      max-height: 320px;
+      overflow: auto;
+    }
+
+    .linkish {
+      color: var(--accent);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* popup */
+    .popup {
+      position: fixed;
+      left: 50%;
+      top: 52%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border: 1px solid #d6cfc6;
+      padding: 18px;
+      border-radius: 8px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+      display: none;
+      z-index: 60;
+      width: 420px;
+      max-width: 90%;
+    }
+
+    .popup h3 {
+      margin: 0 0 8px 0;
+    }
+
+    .popup p {
+      margin: 6px 0;
+      color: var(--muted);
+    }
+
+    .small-btn {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 0;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .muted-btn {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #e6dfd8;
+      background: transparent;
+      cursor: pointer;
+      color: var(--muted);
+    }
+
+    /* footer note */
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="desktop">
+    <div class="workspace">
+      <div class="window">
+        <div class="titlebar">
+          <div class="left">Hell Incorporated — Soul Logistics Terminal</div>
+          <div class="right">Shift: HQ — Headquarter Level</div>
+        </div>
+
+        <div class="content">
+          <!-- Sorting panel -->
+          <div class="panel sort-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-weight:800">Incoming Candidate</div>
+              <div class="note">Quota: <span id="quota">3</span> souls</div>
+            </div>
+
+            <div id="soulContainer">
+              <!-- soul card will be injected here -->
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div class="note">Misery Output: <span id="miseryValue">0</span></div>
+              <button id="submitSoul" class="submit-btn" disabled>Submit Assignment</button>
+            </div>
+
+            <div style="margin-top:8px; color:var(--muted); font-size:13px;">
+              <strong>Tip:</strong> Read all fields. The rules can change.
+            </div>
+          </div>
+
+          <!-- Dashboard -->
+          <div class="dash">
+            <div class="widget">
+              <div class="stat-row">
+                <div class="stat-label">Session Misery</div>
+                <div class="stat-big" id="sessionMisery">0</div>
+              </div>
+              <div class="meter">
+                <div id="meterFill" class="meter-fill"></div>
+              </div>
+            </div>
+
+            <div class="widget">
+              <div style="font-weight:700; margin-bottom:6px;">Live Notifications</div>
+              <div id="notifications" style="min-height:80px; max-height:200px; overflow:auto;"></div>
+            </div>
+
+            <div class="widget">
+              <div style="font-weight:700; margin-bottom:6px;">Recent Activity</div>
+              <div id="activityLog" style="min-height:60px; color:var(--muted); font-size:13px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="taskbar">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div style="font-weight:700; color:var(--muted)">Hell OS</div>
+      </div>
+
+      <div style="flex:1"></div>
+
+      <!-- task icons -->
+      <div id="mailIcon" class="task-icon" title="Mail (Outlook)">
+        <img src="icon_mail.png" alt="mail"
+          onerror="this.style.opacity=.25;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%222%22><rect x=%223%22 y=%225%22 width=%2218%22 height=%2014 rx=%222%22/><path d=%22M3 7l9 6 9-6%22/></svg>';">
+        <div id="mailBadge" class="badge" style="display:none">0</div>
+      </div>
+
+      <div id="workIcon" class="task-icon" title="Work App">
+        <img src="icon_work.png" alt="work"
+          onerror="this.style.opacity=.25;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%222%22><rect x=%225%22 y=%225%22 width=%2014 height=%2014 rx=%222%22/></svg>';">
+      </div>
+    </div>
+  </div>
+
+  <!-- small toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Inbox modal -->
+  <div id="inbox" class="inbox-modal" role="dialog" aria-modal="true">
+    <div class="inbox-head">
+      <div style="font-weight:800">Outlook — Inbox</div>
+      <div><button id="closeInbox" class="muted-btn">Close</button></div>
+    </div>
+    <div style="display:flex;">
+      <div style="width:44%; border-right:1px solid #efe6db;">
+        <div class="mail-list" id="mailList"></div>
+      </div>
+      <div style="width:56%;">
+        <div id="mailView" class="mail-view">
+          <div style="color:var(--muted)">Select an email to view</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- phishing popup -->
+  <div id="popupPhish" class="popup">
+    <h3>Security Alert</h3>
+    <p id="popupPhishText">You clicked a suspicious link.</p>
+    <div style="margin-top:12px; text-align:right;">
+      <button id="ackPhish" class="small-btn">Acknowledge</button>
+    </div>
+  </div>
+
+  <!-- training assigned popup -->
+  <div id="popupTraining" class="popup">
+    <h3>Mandatory Training Assigned</h3>
+    <p>Your account has been flagged. Complete the Mandatory Online Safety refresher as required.</p>
+    <div style="margin-top:12px; text-align:right;">
+      <button id="okTraining" class="small-btn">OK</button>
+    </div>
+  </div>
+
+  <script>
+    /* =========================
+       Prototype logic
+       ========================= */
+
+    /* --- Emails state --- */
+    let inboxEmails = [];
+    let unreadCount = 0;
+    let phished = false;
+    let trainingEmailSent = false;
+
+    /* initial memo that includes the three departments */
+    const DEPT_MEMO = {
+      subject: "Memo: Department Assignments — Soul Logistics",
+      from: "operations@hellinc",
+      body: `Welcome Logistics — you are responsible for placing souls into these assigned departments today.
+
+1) Compliance — Ensures eternal procedural repetition; ideal for those who value order.
+2) Productivity — Optimizes output and keeps the engines running; best for restless or ambitious profiles.
+3) Inspiration — Encourages "creative suffering" where souls are required to invent new forms of misery.
+
+Please place souls thoughtfully and maintain quota. Thank you — Management`
+    };
+
+    /* other emails */
+    function seedInbox() {
+      inboxEmails = [
+        { id: genId(), from: "boss@hellinc", subject: "RE: Shift Expectations", body: "Reminder: quotas increase when you are efficient. Report discrepancies to your manager.", unread: true },
+        { id: genId(), from: DEPT_MEMO.from, subject: DEPT_MEMO.subject, body: DEPT_MEMO.body, unread: true },
+        { id: genId(), from: "newsletter@hellinc", subject: "Office Bulletin: Free Koffee (C-Suite Only)", body: "When in doubt, add more forms. Also: new break room snacks next Tuesday.", unread: true },
+        { id: genId(), from: "events@hellinc", subject: "Wellness Workshop: Learn to Love Your Job", body: "Sign up for 'Joy Through Repetition'. Free for employees.", unread: true },
+        // phishing (designed to be tempting)
+        {
+          id: genId(), from: "hr-notices@hellinc", subject: "Promotion Eligibility — Click to view your personalized reward",
+          body: `Dear Employee,
+We have preliminarily approved you for a site-wide recognition package. Please <span class="linkish" data-phish="true">click here</span> to review your promotion packet and required acceptance form.
+Sincerely,
+Human Resources`, unread: true, phishing: true
+        }
+      ];
+      unreadCount = inboxEmails.filter(e => e.unread).length;
+      updateMailBadge();
+    }
+
+    /* mail UI helpers */
+    function genId() { return Math.random().toString(36).slice(2, 9); }
+    function updateMailBadge() {
+      const badge = document.getElementById('mailBadge');
+      if (unreadCount > 0) { badge.style.display = 'block'; badge.textContent = unreadCount; }
+      else badge.style.display = 'none';
+    }
+    function renderMailList() {
+      const list = document.getElementById('mailList');
+      list.innerHTML = '';
+      inboxEmails.forEach(e => {
+        const div = document.createElement('div');
+        div.className = 'mail-item' + (e.unread ? ' unread' : '');
+        div.dataset.id = e.id;
+        div.innerHTML = `<div style="display:flex;flex-direction:column;">
+        <div class="from">${e.from}</div>
+        <div class="mail-body">${e.subject}</div>
+      </div>
+      <div class="mail-actions">${e.unread ? '● Unread' : ''}</div>`;
+        div.addEventListener('click', () => openMail(e.id));
+        list.appendChild(div);
+      });
+    }
+    function openMail(id) {
+      const mail = inboxEmails.find(m => m.id === id);
+      if (!mail) return;
+      mail.unread = false;
+      unreadCount = inboxEmails.filter(e => e.unread).length;
+      updateMailBadge();
+      renderMailList();
+      const view = document.getElementById('mailView');
+      view.innerHTML = `<div style="font-weight:800;margin-bottom:8px;">${mail.subject}</div>
+    <div style="color:var(--muted); margin-bottom:10px;">From: ${mail.from}</div>
+    <div style="line-height:1.5;">${mail.body}</div>`;
+      // attach phishing link handler if exists
+      view.querySelectorAll('[data-phish]').forEach(n => {
+        n.style.color = 'var(--accent)';
+        n.style.textDecoration = 'underline';
+        n.style.cursor = 'pointer';
+        n.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          // trigger phish
+          onPhishClicked();
+        });
+      });
+    }
+
+    /* show toast */
+    function showToast(txt, time = 3000) {
+      const t = document.getElementById('toast');
+      t.innerHTML = txt;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, time);
+    }
+
+    /* open/close inbox */
+    document.getElementById('mailIcon').addEventListener('click', () => {
+      document.getElementById('inbox').style.display = 'block';
+      renderMailList();
+    });
+    document.getElementById('closeInbox').addEventListener('click', () => { document.getElementById('inbox').style.display = 'none'; });
+
+    /* phish behavior */
+    function onPhishClicked() {
+      // immediate popup and mark phished
+      phished = true;
+      document.getElementById('popupPhishText').textContent = "You've clicked a suspicious link. Your account has been flagged.";
+      document.getElementById('popupPhish').style.display = 'block';
+      // clicking acknowledge closes and schedules forced training later
+    }
+    document.getElementById('ackPhish').addEventListener('click', () => {
+      document.getElementById('popupPhish').style.display = 'none';
+      // assign immediate training (but in this prototype we also send training email after tasks)
+      document.getElementById('popupTraining').style.display = 'block';
+    });
+
+    /* closing training popup */
+    document.getElementById('okTraining').addEventListener('click', () => {
+      document.getElementById('popupTraining').style.display = 'none';
+    });
+
+    /* simulate incoming notifications while sorting */
+    function pushNotification(text) {
+      const area = document.getElementById('notifications');
+      const p = document.createElement('div');
+      p.style.padding = '6px 0';
+      p.style.color = 'var(--muted)';
+      p.textContent = text;
+      area.prepend(p);
+      // toast as well
+      showToast(text, 2500);
+    }
+
+    /* incoming notifications sequence (simulated) */
+    const NOTIFS = [
+      "New company memo posted to Inbox.",
+      "Reminder: Don’t discuss energy metrics outside the floor.",
+      "System update scheduled for midnight.",
+      "Wellness program sign-up closing soon."
+    ];
+
+    /* every 6-9 seconds show a notification and mark mail unread sometimes */
+    let notifIdx = 0;
+    function startNotifications() {
+      const interval = setInterval(() => {
+        if (notifIdx >= NOTIFS.length) { clearInterval(interval); return; }
+        pushNotification(NOTIFS[notifIdx]);
+        // make a random email unread to encourage clicking
+        if (Math.random() < .7) {
+          // fake new 'ping' — show mail badge
+          unreadCount++;
+          updateMailBadge();
+        }
+        notifIdx++;
+      }, 6500);
+    }
+
+    /* =========================
+       Soul Sorting logic
+       ========================= */
+
+    /* three sample souls (profiles intentionally suggest contradictory choices) */
+    const SOULS = [
+      {
+        id: 's1',
+        name: 'Marlene Voss',
+        meta: 'Former hospice nurse. Gentle; hates conflict.',
+        note: 'Displays excessive attachment to mortals. Corrective detachment suggested.',
+        // hidden "misery weight" per department
+        misery: { Compliance: 45, Productivity: 12, Inspiration: 22 }
+      },
+      {
+        id: 's2',
+        name: 'Garth Lome',
+        meta: 'Ex-banker. Greedy, hates boredom.',
+        note: 'Thrives on stimulation; standard punishments cause boredom.',
+        misery: { Compliance: 18, Productivity: 47, Inspiration: 15 }
+      },
+      {
+        id: 's3',
+        name: 'Terrance Blythe',
+        meta: 'Pyramid schemer. Narcissistic; needs control.',
+        note: 'Resilient ego; standard humiliation may increase output if restructured.',
+        misery: { Compliance: 28, Productivity: 21, Inspiration: 46 }
+      }
+    ];
+
+    let currentIndex = 0;
+    let sessionMisery = 0;
+
+    /* render first soul */
+    function renderSoul() {
+      const cont = document.getElementById('soulContainer');
+      cont.innerHTML = '';
+      if (currentIndex >= SOULS.length) {
+        cont.innerHTML = `<div style="padding:18px; color:var(--muted)">All assigned. Await inbox updates.</div>`;
+        document.getElementById('submitSoul').disabled = true;
+        // trigger sending training email if not yet sent
+        if (!trainingEmailSent) {
+          setTimeout(() => sendTrainingEmail(), 1200);
+        }
+        return;
+      }
+      const s = SOULS[currentIndex];
+      const card = document.createElement('div'); card.className = 'soul-card';
+      card.innerHTML = `<div class="soul-name">${s.name}</div>
+    <div class="soul-meta">${s.meta}</div>
+    <div class="soul-note">${s.note}</div>
+    <div style="font-weight:700; margin-bottom:8px;">Assign to Department</div>
+    <div class="dept-list" id="deptList"></div>`;
+      cont.appendChild(card);
+      // fill depts
+      const depts = ['Compliance', 'Productivity', 'Inspiration'];
+      const dl = card.querySelector('#deptList');
+      depts.forEach(d => {
+        const b = document.createElement('button');
+        b.className = 'dept-btn';
+        b.textContent = d;
+        b.dataset.dept = d;
+        b.addEventListener('click', () => {
+          // select toggle
+          dl.querySelectorAll('.dept-btn').forEach(x => x.style.outline = 'none');
+          b.style.outline = '3px solid rgba(178,35,35,.12)';
+          b.style.outlineOffset = '3px';
+          b.dataset.selected = '1';
+          document.getElementById('submitSoul').disabled = false;
+          document.getElementById('submitSoul').dataset.chosen = d;
+        });
+        dl.appendChild(b);
+      });
+    }
+
+    /* handle submit assignment */
+    document.getElementById('submitSoul').addEventListener('click', () => {
+      const btn = document.getElementById('submitSoul');
+      const chosen = btn.dataset.chosen;
+      if (!chosen) return;
+      // calculate misery increment
+      const s = SOULS[currentIndex];
+      const add = s.misery[chosen] || 0;
+      sessionMisery += add;
+      // update UI
+      document.getElementById('sessionMisery').textContent = sessionMisery;
+      document.getElementById('miseryValue').textContent = add;
+      // update meter (cap at 100 for demo)
+      const meter = document.getElementById('meterFill');
+      const pct = Math.min(100, Math.floor((sessionMisery / 200) * 100));
+      meter.style.width = pct + '%';
+      // activity log & notifications
+      const log = document.getElementById('activityLog');
+      const line = document.createElement('div');
+      line.style.marginBottom = '6px';
+      line.style.fontSize = '13px'; line.style.color = 'var(--muted)';
+      line.textContent = `Assigned ${s.name} → ${chosen} (+${add} misery)`;
+      log.prepend(line);
+      // increment progress
+      currentIndex++;
+      document.getElementById('quota').textContent = Math.max(0, SOULS.length - currentIndex);
+      // temporarily disable submit while rendering next
+      btn.disabled = true;
+      delete btn.dataset.chosen;
+      setTimeout(() => renderSoul(), 700);
+    });
+
+    /* send training email after all assigned */
+    function sendTrainingEmail() {
+      trainingEmailSent = true;
+      const mail = {
+        id: genId(), from: "security@hellinc", subject: "Mandatory: Online Safety Refresher (Assigned)",
+        body: `Your account was flagged for suspicious activity. As required, complete the mandatory training: <span class="linkish" data-train="true">Start Mandatory Training</span>`,
+        unread: true
+      };
+      inboxEmails.unshift(mail);
+      unreadCount++;
+      updateMailBadge();
+      pushNotification("New: Mandatory Training assigned to your inbox.");
+      // if inbox open, re-render to show new mail
+      renderMailList();
+    }
+
+    /* mail click handlers for 'training' link */
+    document.addEventListener('click', function (e) {
+      const targ = e.target;
+      if (targ && targ.dataset && targ.dataset.train) {
+        // navigate to training prototype (next page)
+        // For this prototype, we'll simply show an alert and indicate navigation.
+        window.location.href = "training.html";
+      }
+    });
+
+    /* initialize */
+    seedInbox();
+    renderSoul();
+    startNotifications();
+
+    /* when inbox modal opens, render mail content auto */
+    const inboxEl = document.getElementById('inbox');
+    inboxEl.addEventListener('click', () => { renderMailList(); });
+
+    /* when user closes mailbox or other interactions, update list */
+    document.getElementById('inbox').addEventListener('click', () => renderMailList());
+
+    /* clicking outside should not close modal in this simple prototype */
+    /* clicking mail icon also plays a sound? (omitted) */
+
+    /* small UX: when mail arrives, show toast and open inbox if user clicks badge */
+    document.getElementById('mailBadge').addEventListener('click', () => {
+      document.getElementById('inbox').style.display = 'block';
+      renderMailList();
+    });
+
+  </script>
+  <!-- SHIFT INTRO POPUP -->
+  <div id="shiftIntro" class="popup" style="display:flex; flex-direction:column; max-width:560px; width:90%;">
+    <h3>Welcome Back, Associate!</h3>
+    <p>
+      We hope your mandated break time was sufficiently restful.
+      Your next assignment begins <strong>now</strong>.
+    </p>
+    <p>
+      <strong>Your task:</strong> Review incoming soul profiles and assign each one to
+      the department that will ensure maximum operational efficiency and morale optimization.<br><br>
+      Be sure to <em>read all new emails</em> for policy updates and departmental descriptions before sorting.
+      The system will evaluate your performance based on quota completion and overall energy yield.
+    </p>
+    <p>
+      Remember:
+    <ul style="margin:6px 0 0 20px;">
+      <li>Check your <strong>Email App</strong> (bottom right) for new memos.</li>
+      <li>Click a department name to select your choice.</li>
+      <li>Press <strong>Submit Assignment</strong> when you’re ready.</li>
+      <li>Stay vigilant—security incidents affect your performance review.</li>
+    </ul>
+    </p>
+    <div style="margin-top:16px; text-align:right;">
+      <button id="startShift" class="small-btn">Continue to Work</button>
+    </div>
+  </div>
+
+  <script>
+    // Show intro popup on load
+    window.addEventListener("load", () => {
+      document.getElementById("shiftIntro").style.display = "flex";
+    });
+
+    // Start button closes intro
+    document.getElementById("startShift").addEventListener("click", () => {
+      document.getElementById("shiftIntro").style.display = "none";
+      showToast("New shift initialized. Please check your inbox for updates.", 4000);
+    });
+  </script>
+
+</body>
+
+</html>
