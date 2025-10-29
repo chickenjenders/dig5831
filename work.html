@@ -1,905 +1,746 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Infernal Affairs - Task Scheduler</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Infernal Affairs — Shift Scheduler</title>
   <style>
+    :root {
+      --ink: #eadfd2;
+      --bg: #1a1625;
+      --panel: #140f20;
+      --line: #3a2a52;
+      --accent: #a788ff;
+      --accent-2: #caa3ff;
+      --muted: #9487b5;
+      --danger: #ff7b7b;
+    }
+
     * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+      box-sizing: border-box
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #1a1625 0%, #2d1b3d 100%);
-      color: #e0e0e0;
-      overflow-x: hidden;
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
+      background: linear-gradient(135deg, #1a1625, #2d1b3d);
+      color: var(--ink)
     }
 
-    .header {
-      background: #0f0a1a;
-      border-bottom: 2px solid #8b5cf6;
-      padding: 20px 40px;
-      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
-    }
-
-    .header-content {
-      max-width: 1400px;
-      margin: 0 auto;
+    header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 14px 22px;
+      border-bottom: 2px solid var(--accent);
+      background: #0f0a1a;
+      box-shadow: 0 6px 24px rgba(167, 136, 255, .25)
     }
 
-    .logo {
-      font-size: 24px;
-      font-weight: 700;
-      color: #c084fc;
-      letter-spacing: 1px;
+    h1 {
+      font-size: 18px;
+      letter-spacing: .6px;
+      margin: 0;
+      color: var(--accent)
     }
 
-    .shift-info {
+    .meta {
       display: flex;
-      gap: 24px;
-      font-size: 14px;
+      gap: 20px;
+      font-size: 13px;
+      color: var(--muted)
     }
 
-    .shift-label {
-      color: #9ca3af;
-    }
-
-    .shift-value {
-      color: #c084fc;
-      font-weight: 600;
-    }
-
-    .container {
-      max-width: 1400px;
+    .wrap {
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 40px;
+      padding: 24px;
       display: grid;
-      grid-template-columns: 280px 1fr 320px;
-      gap: 24px;
-      min-height: calc(100vh - 100px);
+      grid-template-columns: 260px 1fr 320px;
+      gap: 18px
     }
 
-    /* Demon List Sidebar */
-    .demon-list {
-      background: rgba(15, 10, 26, 0.6);
-      border: 1px solid rgba(139, 92, 246, 0.2);
+    /* left: demons */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 20px;
-      height: fit-content;
-      backdrop-filter: blur(10px);
+      padding: 14px
     }
 
-    .demon-list h2 {
-      font-size: 16px;
-      font-weight: 600;
-      color: #c084fc;
-      margin-bottom: 16px;
+    .demons h2,
+    .pool h2 {
+      font-size: 13px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: .7px;
+      color: var(--muted);
+      margin: 0 0 10px
     }
 
-    .demon-item {
-      background: rgba(139, 92, 246, 0.1);
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 12px;
+    .demon {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
       cursor: pointer;
-      transition: all 0.2s;
+      background: #1b142a;
+      transition: all .2s
     }
 
-    .demon-item:hover {
-      background: rgba(139, 92, 246, 0.2);
-      border-color: rgba(139, 92, 246, 0.5);
-      transform: translateX(4px);
+    .demon:hover {
+      border-color: var(--accent)
     }
 
-    .demon-item.selected {
-      background: rgba(139, 92, 246, 0.3);
-      border-color: #8b5cf6;
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    .demon.active {
+      outline: 2px solid var(--accent);
+      box-shadow: 0 0 0 4px rgba(167, 136, 255, .15)
     }
 
-    .demon-name {
-      font-weight: 600;
-      font-size: 15px;
-      color: #e0e0e0;
-      margin-bottom: 4px;
+    .name {
+      font-weight: 700;
+      color: #e9e4f8
     }
 
-    .demon-dept {
+    .dept {
       font-size: 12px;
-      color: #9ca3af;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      color: var(--muted)
     }
 
-    /* Main Scheduling Area */
-    .schedule-area {
-      background: rgba(15, 10, 26, 0.6);
-      border: 1px solid rgba(139, 92, 246, 0.2);
-      border-radius: 12px;
-      padding: 32px;
-      backdrop-filter: blur(10px);
+    /* center: schedule */
+    .profile {
+      display: none
     }
 
-    .demon-profile {
-      display: none;
-      margin-bottom: 32px;
-    }
-
-    .demon-profile.active {
-      display: block;
+    .profile.active {
+      display: block
     }
 
     .profile-header {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(192, 132, 252, 0.1) 100%);
-      border: 1px solid rgba(139, 92, 246, 0.4);
-      border-radius: 8px;
-      padding: 24px;
-      margin-bottom: 24px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      background: #1b142a;
+      margin-bottom: 14px
     }
 
-    .profile-name {
-      font-size: 28px;
-      font-weight: 700;
-      color: #c084fc;
-      margin-bottom: 8px;
-    }
-
-    .profile-grid {
+    .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-top: 16px;
+      gap: 10px;
+      margin-top: 8px
     }
 
-    .profile-item {
-      background: rgba(15, 10, 26, 0.5);
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #120d1a
+    }
+
+    .pill small {
+      display: block;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px
+    }
+
+    .pill span {
+      font-size: 14px
+    }
+
+    .shift {
+      border: 1px solid var(--line);
+      border-radius: 12px;
       padding: 12px;
-      border-radius: 6px;
-      border: 1px solid rgba(139, 92, 246, 0.2);
+      background: #181226;
+      margin-bottom: 12px
     }
 
-    .profile-label {
-      font-size: 11px;
-      color: #9ca3af;
+    .shift h3 {
+      margin: 0 0 10px;
+      font-size: 13px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
+      letter-spacing: .6px;
+      color: var(--muted)
     }
 
-    .profile-value {
-      font-size: 14px;
-      color: #e0e0e0;
-      font-weight: 500;
-    }
-
-    .hell-sentence {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 6px;
-      padding: 16px;
-      margin-top: 16px;
-    }
-
-    .hell-sentence-label {
-      font-size: 11px;
-      color: #fca5a5;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-
-    .hell-sentence-text {
-      font-size: 14px;
-      color: #e0e0e0;
-      line-height: 1.5;
-    }
-
-    /* Schedule Grid */
-    .schedule-section {
-      margin-bottom: 32px;
-    }
-
-    .schedule-section h3 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #c084fc;
-      margin-bottom: 16px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .task-list {
+    .row {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      align-items: stretch;
+      gap: 8px;
+      margin: 6px 0
     }
 
-    .task-item {
-      background: rgba(139, 92, 246, 0.1);
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      border-radius: 6px;
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .task-item.baseline {
-      background: rgba(75, 85, 99, 0.2);
-      border-color: rgba(75, 85, 99, 0.4);
-    }
-
-    .task-checkbox {
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(139, 92, 246, 0.5);
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-
-    .task-checkbox.checked {
-      background: #8b5cf6;
-      border-color: #8b5cf6;
-      position: relative;
-    }
-
-    .task-checkbox.checked::after {
-      content: '✓';
-      position: absolute;
-      color: white;
-      font-size: 14px;
-      top: -2px;
-      left: 3px;
-    }
-
-    .task-text {
-      font-size: 14px;
-      color: #e0e0e0;
+    .baseline {
       flex: 1;
+      background: #201832;
+      border: 1px solid #2c2144;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 14px;
+      color: #cbbfe6
     }
 
-    .task-item.baseline .task-text {
-      color: #9ca3af;
-    }
-
-    .drop-zone {
-      min-height: 60px;
-      background: rgba(139, 92, 246, 0.05);
-      border: 2px dashed rgba(139, 92, 246, 0.3);
-      border-radius: 6px;
-      padding: 16px;
+    .slot {
+      min-width: 140px;
+      min-height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #6b7280;
+      border: 2px dashed #3a2a52;
+      border-radius: 10px;
+      color: #7f70a7;
+      background: #130e1d;
+      padding: 6px;
+      transition: all .15s
+    }
+
+    .slot.dragover {
+      border-color: var(--accent);
+      color: var(--accent)
+    }
+
+    .chip {
+      background: #261a3f;
+      border: 1px solid var(--accent);
+      color: #eadfff;
+      border-radius: 10px;
+      padding: 8px 10px;
       font-size: 13px;
-      transition: all 0.2s;
-    }
-
-    .drop-zone.drag-over {
-      background: rgba(139, 92, 246, 0.15);
-      border-color: #8b5cf6;
-      border-style: solid;
-    }
-
-    .drop-zone.filled {
-      background: rgba(139, 92, 246, 0.1);
-      border-style: solid;
-      border-color: rgba(139, 92, 246, 0.4);
-      justify-content: flex-start;
-    }
-
-    /* Task Pool Sidebar */
-    .task-pool {
-      background: rgba(15, 10, 26, 0.6);
-      border: 1px solid rgba(139, 92, 246, 0.2);
-      border-radius: 12px;
-      padding: 20px;
-      height: fit-content;
-      backdrop-filter: blur(10px);
-    }
-
-    .task-pool h2 {
-      font-size: 16px;
-      font-weight: 600;
-      color: #c084fc;
-      margin-bottom: 16px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .pool-task {
-      background: rgba(139, 92, 246, 0.15);
-      border: 1px solid rgba(139, 92, 246, 0.4);
-      border-radius: 6px;
-      padding: 14px;
-      margin-bottom: 12px;
-      cursor: move;
-      font-size: 13px;
-      color: #e0e0e0;
-      transition: all 0.2s;
-      line-height: 1.4;
-    }
-
-    .pool-task:hover {
-      background: rgba(139, 92, 246, 0.25);
-      border-color: #8b5cf6;
-      transform: translateX(-4px);
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-    }
-
-    .pool-task.dragging {
-      opacity: 0.5;
-    }
-
-    .pool-task.used {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
-
-    .submit-btn {
       width: 100%;
-      background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
-      border: none;
-      border-radius: 8px;
-      padding: 16px;
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 24px;
-      transition: all 0.2s;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      text-align: left
     }
 
-    .submit-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+    /* right: task pool + submit */
+    .task {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #1b142a;
+      cursor: grab
     }
 
-    .submit-btn:disabled {
-      opacity: 0.5;
+    .task.used {
+      opacity: .35;
       cursor: not-allowed;
+      filter: saturate(.6)
     }
 
-    .empty-state {
-      text-align: center;
-      color: #6b7280;
-      padding: 60px 20px;
+    .submit {
+      margin-top: 8px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 0;
+      color: #130e1d;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      font-weight: 800;
+      cursor: pointer
     }
 
-    .empty-state-icon {
-      font-size: 64px;
-      margin-bottom: 16px;
-      opacity: 0.3;
+    .submit:disabled {
+      opacity: .45;
+      cursor: not-allowed
     }
 
-    /* Modal */
+    /* modal */
     .modal {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
+      inset: 0;
       display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      backdrop-filter: blur(4px);
+      place-items: center;
+      background: rgba(0, 0, 0, .6);
+      z-index: 50
     }
 
-    .modal.active {
-      display: flex;
+    .modal.show {
+      display: grid
     }
 
-    .modal-content {
-      background: linear-gradient(135deg, #1a1625 0%, #2d1b3d 100%);
-      border: 2px solid #8b5cf6;
-      border-radius: 16px;
-      padding: 40px;
-      max-width: 600px;
-      width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    .panel {
+      background: #130e1d;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      width: min(560px, 92vw)
     }
 
-    .modal-header {
-      font-size: 28px;
-      font-weight: 700;
-      color: #c084fc;
-      margin-bottom: 24px;
-      text-align: center;
+    .panel h2 {
+      margin: 0 0 8px
     }
 
-    .modal-body {
-      font-size: 16px;
-      line-height: 1.8;
-      color: #e0e0e0;
-      margin-bottom: 32px;
+    .meter {
+      height: 12px;
+      border-radius: 999px;
+      background: #2a2040;
+      overflow: hidden;
+      border: 1px solid var(--line)
     }
 
-    .misery-score {
-      background: rgba(139, 92, 246, 0.2);
-      border: 1px solid rgba(139, 92, 246, 0.4);
-      border-radius: 8px;
-      padding: 24px;
-      text-align: center;
-      margin: 24px 0;
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff7b7b, #ffb36d);
+      transition: width .5s
     }
 
-    .misery-label {
-      font-size: 14px;
-      color: #9ca3af;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
+    .note {
+      color: var(--muted);
+      font-size: 13px
     }
 
-    .misery-value {
-      font-size: 48px;
-      font-weight: 700;
-      color: #c084fc;
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-    }
-
-    .btn {
-      padding: 12px 32px;
-      border-radius: 8px;
-      border: none;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+    .close {
+      margin-top: 10px;
+      display: inline-block;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: transparent;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer
     }
   </style>
 </head>
 
 <body>
-  <div class="header">
-    <div class="header-content">
-      <div class="logo">🔥 INFERNAL TASK SCHEDULER</div>
-      <div class="shift-info">
-        <div>
-          <span class="shift-label">Shift:</span>
-          <span class="shift-value" id="shiftNumber">1</span>
-        </div>
-        <div>
-          <span class="shift-label">Scheduled:</span>
-          <span class="shift-value" id="scheduledCount">0/3</span>
+  <header>
+    <h1>Infernal Affairs — Shift Scheduler</h1>
+    <div class="meta">
+      <div>Current Shift: <strong>1</strong></div>
+      <div>Demons Scheduled: <strong id="doneCount">0/3</strong></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- DEMON LIST -->
+    <section class="card demons">
+      <h2>Employees</h2>
+      <div id="demonList"></div>
+    </section>
+
+    <!-- SCHEDULE -->
+    <section class="card">
+      <div id="profileArea">
+        <div class="profile empty">
+          <p style="color:#9b92b8; text-align:center; padding:40px">Select an employee to arrange their three shifts.
+          </p>
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- TASK POOL -->
+    <section class="card pool">
+      <h2>Optional Tasks (Drag Anywhere • Max 3)</h2>
+      <div id="taskPool"></div>
+      <button id="submitBtn" class="submit" disabled>Submit This Schedule</button>
+    </section>
   </div>
 
-  <div class="container">
-    <!-- Demon List Sidebar -->
-    <div class="demon-list">
-      <h2>📋 Employees</h2>
-      <div id="demonListContainer"></div>
-    </div>
-
-    <!-- Main Scheduling Area -->
-    <div class="schedule-area">
-      <div id="scheduleContent">
-        <div class="empty-state">
-          <div class="empty-state-icon">👈</div>
-          <div>Select an employee to assign tasks</div>
-        </div>
+  <!-- MODAL -->
+  <div id="modal" class="modal">
+    <div class="panel">
+      <h2 id="reportTitle">Shift Report</h2>
+      <p class="note" id="reportBlurb"></p>
+      <div class="meter" style="margin:12px 0 6px">
+        <div id="bar" class="bar"></div>
       </div>
-    </div>
-
-    <!-- Task Pool Sidebar -->
-    <div class="task-pool">
-      <h2>📦 Available Tasks</h2>
-      <div id="taskPoolContainer">
-        <div style="color: #6b7280; font-size: 13px; text-align: center; padding: 20px;">
-          Select an employee first
-        </div>
-      </div>
-      <button class="submit-btn" id="submitBtn" disabled onclick="submitShift()">
-        Submit Shift Report
-      </button>
-    </div>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <div class="modal-header" id="modalHeader"></div>
-      <div class="modal-body" id="modalBody"></div>
-      <div class="modal-actions" id="modalActions"></div>
+      <p style="margin:6px 0 0"><strong id="scoreNum">Misery Index: 0</strong> <span class="note">• Efficiency <span
+            id="effPct">0%</span></span></p>
+      <button class="close" onclick="closeModal()">Close</button>
     </div>
   </div>
 
   <script>
-    // Game Data
-    const demons = [
+    /* ---------------------------------------------------------
+       DATA
+    --------------------------------------------------------- */
+    const DEMONS = [
       {
-        id: 'gerald',
-        name: 'Gerald Finch',
-        department: 'IT',
-        causeOfDeath: 'Stress-induced heart attack at desk',
-        hellSentence: 'Obsessive micromanagement destroyed team morale and drove two junior developers to breakdowns',
-        mbti: 'ISTJ',
-        bloodType: 'A+',
-        sign: 'Virgo',
-        personality: 'Needs clear instructions, loves documentation, hates ambiguity. Gets physically ill when requirements change mid-project. Alphabetizes his lunch.',
-        baselineTasks: [
-          'Answer "Why is internet slow?" emails',
-          'Attend standup (nobody knows what they did yesterday)',
-          'Update the wiki nobody reads'
+        id: 'gerald', name: 'Gerald Finch', dept: 'IT',
+        mbti: 'ISTJ', blood: 'A+', sign: 'Virgo',
+        cause: 'Stress-induced heart attack at desk',
+        sentence: 'Obsessive micromanagement destroyed team morale and drove two junior developers to breakdowns.',
+        personality: 'Needs clear instructions, loves documentation, hates ambiguity. Gets physically ill when requirements change mid-project.',
+        // five baseline per shift (fixed order)
+        shifts: [
+          [
+            'Answer “Why is internet slow?” emails',
+            'Approve 404 incident reports',
+            'Attend stand-up (no one knows what they did)',
+            'Update the wiki nobody reads',
+            'Patch InfernalOS Beta v666'
+          ],
+          [
+            'Ticket triage (300 new “URGENT” flags)',
+            'Printer exorcism request intake',
+            'Explain caching again (fourth time)',
+            'Firewall log audit for hope packets',
+            'Rollback last rollback (again)'
+          ],
+          [
+            'Nightly status export (fails silently)',
+            'Compliance screenshot parade',
+            'Write post-mortem before incident',
+            'Meet about meetings',
+            'Reboot the data center (spiritual)'
+          ]
         ],
-        optionalTasks: [
-          'Fix "the thing" (user cannot elaborate)',
-          'Urgent task due yesterday with no specs',
-          'Install software but Janet forgot her password again',
-          'Debug code you didn\'t write with no comments',
-          'Meeting about meetings that should be emails',
-          'Deploy to production on Friday at 4:58 PM'
+        // Optional pool (fixed for first shift)
+        optional: [
+          { label: 'Fix “the thing” (user cannot elaborate)', tags: ['vague'] },
+          { label: 'Urgent task due yesterday with no specs', tags: ['impossible', 'vague'] },
+          { label: 'Install software (user forgot password)', tags: ['loop'] },
+          { label: 'Debug code you didn’t write (no comments)', tags: ['vague'] },
+          { label: 'Deploy to prod Friday 4:58 PM', tags: ['impossible'] },
+          { label: 'Migrate wiki to new wiki for no reason', tags: ['loop'] }
         ],
-        miseryWeights: {
-          0: 10, // vague requirements
-          1: 10, // impossible deadline
-          2: 5,
-          3: 10, // unclear requirements
-          4: 7,
-          5: 9  // no preparation time
-        }
+        // Weights per aversion (hidden)
+        weights: { vague: 10, impossible: 9, loop: 7 }
       },
       {
-        id: 'cheryl',
-        name: 'Cheryl Stone',
-        department: 'Sales',
-        causeOfDeath: 'DUI crash after client dinner',
-        hellSentence: 'Manipulated relationships and exploited personal connections purely for commission and status',
-        mbti: 'ESFP',
-        bloodType: 'O-',
-        sign: 'Leo',
-        personality: 'Thrives on attention and social interaction. Will literally die if left alone for more than 30 minutes. Has never eaten lunch by herself. Ever.',
-        baselineTasks: [
-          'Call 50 people who don\'t want to talk to you',
-          'Smile through another "just browsing" interaction',
-          'Update CRM with fake enthusiasm notes'
+        id: 'cheryl', name: 'Cheryl Stone', dept: 'Sales',
+        mbti: 'ESFP', blood: 'O-', sign: 'Leo',
+        cause: 'DUI crash after client dinner',
+        sentence: 'Manipulated relationships purely for commission and status.',
+        personality: 'Thrives on attention and social interaction. Suffers in isolation and paperwork.',
+        shifts: [
+          [
+            'Call 50 “not interested” leads',
+            'CRM “enthusiasm” updates',
+            'Stand-up chant: Every No is a Future Yes',
+            'Quota review (numbers increase mid-meeting)',
+            'Prospect list cleanup (again)'
+          ],
+          [
+            'Lunch & Learn (cold pizza, colder stares)',
+            'Deck polishing for tomorrow’s deck',
+            'Shadow pitch where you cannot speak',
+            'Client “quick call” (75 minutes)',
+            'Rejected expense reports review'
+          ],
+          [
+            'Territory reshuffle (again)',
+            'Leads dispute mediation',
+            'Pipeline rinse (remove wins as “lucky”)',
+            'Win story write-up (not your win)',
+            'Nightly KPI affirmations'
+          ]
         ],
-        optionalTasks: [
-          'Data entry in silent room for 6 hours',
-          'Listen to training video alone with headphones',
-          'Organize files alphabetically by yourself',
-          'Work from home with camera OFF all day',
-          'Eat lunch at your desk (no one to talk to)',
-          'Cold email 200 strangers who will ignore you'
+        optional: [
+          { label: 'Data entry alone for 6 hours', tags: ['isolation'] },
+          { label: 'Listen to training video w/ headphones', tags: ['isolation'] },
+          { label: 'Organize files alphabetically (solo)', tags: ['isolation'] },
+          { label: 'Work from home with camera OFF all day', tags: ['isolation'] },
+          { label: 'Eat lunch at desk (no visitors)', tags: ['isolation'] },
+          { label: 'Cold email 200 strangers', tags: ['tedium'] }
         ],
-        miseryWeights: {
-          0: 10, // isolation
-          1: 9,  // alone with headphones
-          2: 7,
-          3: 10, // camera off isolation
-          4: 10, // eating alone
-          5: 6   // impersonal but not isolated
-        }
+        weights: { isolation: 10, tedium: 6 }
       },
       {
-        id: 'marcus',
-        name: 'Marcus Webb',
-        department: 'HR',
-        causeOfDeath: 'Choked on food at mandatory work dinner',
-        hellSentence: 'Enabled toxic workplace culture by always siding with management over employee wellbeing',
-        mbti: 'ENFJ',
-        bloodType: 'B+',
-        sign: 'Libra',
-        personality: 'Pathological people-pleaser. Physically cannot handle confrontation. Once cried because someone disagreed with his lunch choice. Wants everyone to like him.',
-        baselineTasks: [
-          'Smile at complaint about low pay',
-          'Enforce policy you personally think is stupid',
-          'Explain why there\'s no budget for raises (again)'
+        id: 'marcus', name: 'Marcus Webb', dept: 'HR',
+        mbti: 'ENFJ', blood: 'B+', sign: 'Libra',
+        cause: 'Choked at mandatory work dinner',
+        sentence: 'Enabled toxic culture by siding with management over workers.',
+        personality: 'Pathological people-pleaser. Melts in direct conflict and bad-news delivery.',
+        shifts: [
+          [
+            'Smile at complaint about low pay',
+            'Enforce policy you think is dumb',
+            'Explain “no budget for raises” (again)',
+            'Onboarding souls (confetti disabled)',
+            'Wellness survey compilation (0% happy)'
+          ],
+          [
+            'Investigate anonymous complaint (it’s yours)',
+            'Diversity report formatting (no data)',
+            'Benefits town hall (no questions allowed)',
+            'Update handbook while ignoring feedback',
+            'Performance rubric rewording'
+          ],
+          [
+            'Reconciliation of reconciliation logs',
+            'Policy contradiction alignment',
+            'Exit interview with soul that can’t leave',
+            'Manager training: “Empathy™ Lite”',
+            'Executive offsite travel approvals'
+          ]
         ],
-        optionalTasks: [
-          'Fire someone on their birthday with a script',
-          'Break up screaming match between two demons who hate you',
-          'Tell everyone the free coffee is discontinued',
-          'Deny the PTO request for their wedding',
-          'Sit between two people arguing at you',
-          'Say no to the therapy dog proposal'
+        optional: [
+          { label: 'Fire someone on their birthday (scripted)', tags: ['conflict'] },
+          { label: 'Break up screaming match (you in middle)', tags: ['conflict'] },
+          { label: 'Announce free coffee discontinued', tags: ['badnews'] },
+          { label: 'Deny PTO request for their wedding', tags: ['badnews', 'conflict'] },
+          { label: 'Say no to therapy dog proposal', tags: ['badnews'] },
+          { label: 'Mediation between two demons who hate you', tags: ['conflict'] }
         ],
-        miseryWeights: {
-          0: 10, // confrontation with script
-          1: 10, // direct conflict
-          2: 9,  // being the bad news bearer
-          3: 10, // denial and confrontation
-          4: 10, // sandwich conflict
-          5: 8   // disappointing everyone
-        }
+        weights: { conflict: 10, badnews: 9 }
       }
     ];
 
-    // Game State
-    let gameState = {
-      currentDemon: null,
-      assignments: {},
-      completedDemons: new Set()
+    /* ---------------------------------------------------------
+       STATE
+    --------------------------------------------------------- */
+    const state = {
+      current: null,                // demon id
+      drops: {},                   // { demonId: [ {shift:0..2, index: insertIndex, taskIdx} ... ] }
+      usedTasks: {}                // { demonId: Set(taskIdx) }
+    };
+    DEMONS.forEach(d => { state.drops[d.id] = []; state.usedTasks[d.id] = new Set(); });
+
+    /* ---------------------------------------------------------
+       RENDER: DEMON LIST
+    --------------------------------------------------------- */
+    const demonListEl = document.getElementById('demonList');
+    DEMONS.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'demon'; el.dataset.id = d.id;
+      el.innerHTML = `<div class="name">${d.name}</div><div class="dept">${d.dept}</div>`;
+      el.onclick = () => selectDemon(d.id, el);
+      demonListEl.appendChild(el);
+    });
+
+    function selectDemon(id, el) {
+      state.current = id;
+      document.querySelectorAll('.demon').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+      renderProfile();
+      renderPool();
+      toggleSubmit();
+    }
+
+    /* ---------------------------------------------------------
+       RENDER: PROFILE + SHIFTS (with insertion slots)
+    --------------------------------------------------------- */
+    function renderProfile() {
+      const host = document.getElementById('profileArea');
+      host.innerHTML = '';
+      const d = DEMONS.find(x => x.id === state.current);
+      if (!d) { host.innerHTML = '<div class="profile"><p style="padding:24px;color:#9b92b8">Select an employee.</p></div>'; return; }
+
+      const wrap = document.createElement('div');
+      wrap.className = 'profile active';
+      wrap.innerHTML = `
+    <div class="profile-header">
+      <div style="font-weight:800; color:#eadfff; font-size:18px">${d.name} — ${d.dept}</div>
+      <div class="grid">
+        <div class="pill"><small>MBTI</small><span>${d.mbti}</span></div>
+        <div class="pill"><small>Blood</small><span>${d.blood}</span></div>
+        <div class="pill"><small>Sign</small><span>${d.sign}</span></div>
+      </div>
+      <div class="grid" style="margin-top:10px">
+        <div class="pill" style="grid-column:span 3"><small>Cause of Death</small><span>${d.cause}</span></div>
+        <div class="pill" style="grid-column:span 3"><small>Personality</small><span>${d.personality}</span></div>
+        <div class="pill" style="grid-column:span 3"><small>Hell Sentence</small><span>${d.sentence}</span></div>
+      </div>
+    </div>
+  `;
+      // shifts
+      d.shifts.forEach((tasks, sIdx) => {
+        const sec = document.createElement('section');
+        sec.className = 'shift';
+        sec.innerHTML = `<h3>Shift ${sIdx + 1}</h3>`;
+        // For each baseline task, add [slot | baseline] rows, plus a slot at the end
+        tasks.forEach((t, i) => {
+          sec.appendChild(makeRow(d.id, sIdx, i));               // slot before
+          const base = document.createElement('div');
+          base.className = 'baseline';
+          base.textContent = t;
+          const row = document.createElement('div'); row.className = 'row';
+          row.appendChild(base);
+          sec.appendChild(row);
+        });
+        sec.appendChild(makeRow(d.id, sIdx, tasks.length));       // trailing slot
+        wrap.appendChild(sec);
+      });
+
+      host.appendChild(wrap);
+      // rehydrate already placed chips
+      reapplyChips();
+    }
+
+    function makeRow(demonId, shiftIdx, insertIndex) {
+      const row = document.createElement('div'); row.className = 'row';
+      const slot = document.createElement('div'); slot.className = 'slot';
+      slot.textContent = 'Insert task here';
+      slot.dataset.demon = demonId;
+      slot.dataset.shift = shiftIdx;
+      slot.dataset.index = insertIndex;
+
+      slot.ondragover = (e) => { e.preventDefault(); slot.classList.add('dragover'); };
+      slot.ondragleave = () => slot.classList.remove('dragover');
+      slot.ondrop = (e) => {
+        e.preventDefault(); slot.classList.remove('dragover');
+        const taskIdx = Number(e.dataTransfer.getData('taskIdx'));
+        placeTask(demonId, shiftIdx, insertIndex, taskIdx, slot);
+      };
+      row.appendChild(slot);
+      return row;
+    }
+
+    /* ---------------------------------------------------------
+       RENDER: TASK POOL (fixed per demon)
+    --------------------------------------------------------- */
+    function renderPool() {
+      const pool = document.getElementById('taskPool');
+      pool.innerHTML = '';
+      const d = DEMONS.find(x => x.id === state.current);
+      if (!d) { pool.innerHTML = `<div class="task" style="opacity:.5">Select an employee first</div>`; return; }
+
+      d.optional.forEach((opt, idx) => {
+        const used = state.usedTasks[d.id].has(idx);
+        const t = document.createElement('div');
+        t.className = `task ${used ? 'used' : ''}`;
+        t.textContent = opt.label;
+        if (!used) {
+          t.draggable = true;
+          t.ondragstart = (e) => { e.dataTransfer.setData('taskIdx', String(idx)); };
+        }
+        pool.appendChild(t);
+      });
+    }
+
+    /* ---------------------------------------------------------
+       PLACE TASK (max 3 per demon, anywhere)
+    --------------------------------------------------------- */
+    function placeTask(demonId, shiftIdx, insertIndex, taskIdx, slotEl) {
+      // Enforce cap = 3
+      if (state.usedTasks[demonId].size >= 3 && !state.usedTasks[demonId].has(taskIdx)) {
+        pulse(slotEl, 'You already assigned 3 tasks.');
+        return;
+      }
+      // Prevent duplicate use of same option
+      if (state.usedTasks[demonId].has(taskIdx)) {
+        pulse(slotEl, 'That task is already placed.');
+        return;
+      }
+      // Record
+      state.drops[demonId].push({ shift: shiftIdx, index: insertIndex, taskIdx });
+      state.usedTasks[demonId].add(taskIdx);
+
+      // Render chip into slot
+      slotEl.innerHTML = '';
+      const chip = document.createElement('button');
+      chip.className = 'chip';
+      chip.textContent = DEMONS.find(d => d.id === demonId).optional[taskIdx].label + '  ✕';
+      chip.onclick = () => removeTask(demonId, shiftIdx, insertIndex, taskIdx);
+      slotEl.appendChild(chip);
+      slotEl.classList.add('filled');
+      renderPool();
+      toggleSubmit();
+    }
+
+    function removeTask(demonId, shiftIdx, insertIndex, taskIdx) {
+      // remove from record
+      state.drops[demonId] = state.drops[demonId].filter(r => !(r.shift === shiftIdx && r.index === insertIndex && r.taskIdx === taskIdx));
+      state.usedTasks[demonId].delete(taskIdx);
+      // re-render profile to clear chip from slot
+      renderProfile();
+      renderPool();
+      toggleSubmit();
+    }
+
+    function reapplyChips() {
+      const d = DEMONS.find(x => x.id === state.current);
+      state.drops[d.id].forEach(r => {
+        const slot = document.querySelector(`.slot[data-demon="${d.id}"][data-shift="${r.shift}"][data-index="${r.index}"]`);
+        if (slot) {
+          slot.innerHTML = '';
+          const chip = document.createElement('button');
+          chip.className = 'chip';
+          chip.textContent = d.optional[r.taskIdx].label + '  ✕';
+          chip.onclick = () => removeTask(d.id, r.shift, r.index, r.taskIdx);
+          slot.appendChild(chip);
+          slot.classList.add('filled');
+        }
+      });
+    }
+
+    /* ---------------------------------------------------------
+       SUBMIT & REPORT (per demon)
+    --------------------------------------------------------- */
+    function toggleSubmit() {
+      const btn = document.getElementById('submitBtn');
+      const d = DEMONS.find(x => x.id === state.current);
+      if (!d) { btn.disabled = true; return; }
+      btn.disabled = !(state.usedTasks[d.id].size === 3);
+    }
+
+    document.getElementById('submitBtn').onclick = () => {
+      const d = DEMONS.find(x => x.id === state.current);
+      const placed = Array.from(state.usedTasks[d.id]);
+      const score = placed.reduce((sum, idx) => {
+        const tags = d.optional[idx].tags || [];
+        let add = 0;
+        tags.forEach(tag => add += (d.weights[tag] || 5));
+        return sum + add;
+      }, 0);
+      // 3 tasks × ~max(10 per tag); normalize to %
+      const eff = Math.round(Math.min(100, (score / 30) * 100));
+      const blurb = narrative(d, placed, eff);
+
+      // mark demon as completed (prevents resubmitting)
+      const card = document.querySelector(`.demon[data-id="${d.id}"]`);
+      card.style.opacity = .6;
+
+      // done count
+      const done = DEMONS.filter(x => state.usedTasks[x.id].size === 3).length;
+      document.getElementById('doneCount').textContent = `${done}/${DEMONS.length}`;
+
+      showReport(`${d.name} — Schedule Submitted`, blurb, score, eff);
     };
 
-    // Initialize
-    function init() {
-      renderDemonList();
-      demons.forEach(demon => {
-        gameState.assignments[demon.id] = [];
-      });
-    }
-
-    function renderDemonList() {
-      const container = document.getElementById('demonListContainer');
-      container.innerHTML = demons.map(demon => `
-                <div class="demon-item" onclick="selectDemon('${demon.id}')">
-                    <div class="demon-name">${demon.name}</div>
-                    <div class="demon-dept">${demon.department}</div>
-                </div>
-            `).join('');
-    }
-
-    function selectDemon(demonId) {
-      gameState.currentDemon = demons.find(d => d.id === demonId);
-
-      // Update selection UI
-      document.querySelectorAll('.demon-item').forEach(item => {
-        item.classList.remove('selected');
-      });
-      event.target.closest('.demon-item').classList.add('selected');
-
-      renderDemonProfile();
-      renderTaskPool();
-    }
-
-    function renderDemonProfile() {
-      const demon = gameState.currentDemon;
-      const scheduleContent = document.getElementById('scheduleContent');
-
-      scheduleContent.innerHTML = `
-                <div class="demon-profile active">
-                    <div class="profile-header">
-                        <div class="profile-name">${demon.name}</div>
-                        <div class="profile-grid">
-                            <div class="profile-item">
-                                <div class="profile-label">Department</div>
-                                <div class="profile-value">${demon.department}</div>
-                            </div>
-                            <div class="profile-item">
-                                <div class="profile-label">MBTI</div>
-                                <div class="profile-value">${demon.mbti}</div>
-                            </div>
-                            <div class="profile-item">
-                                <div class="profile-label">Blood Type</div>
-                                <div class="profile-value">${demon.bloodType}</div>
-                            </div>
-                            <div class="profile-item">
-                                <div class="profile-label">Zodiac Sign</div>
-                                <div class="profile-value">${demon.sign}</div>
-                            </div>
-                            <div class="profile-item">
-                                <div class="profile-label">Cause of Death</div>
-                                <div class="profile-value">${demon.causeOfDeath}</div>
-                            </div>
-                            <div class="profile-item" style="grid-column: span 3;">
-                                <div class="profile-item">
-                                    <div class="profile-label">Personality</div>
-                                    <div class="profile-value" style="line-height: 1.5; margin-top: 8px;">${demon.personality}</div>
-                                </div>
-                            </div>
-                            <div class="profile-item" style="grid-column: span 3;">
-                                <div class="hell-sentence">
-                                    <div class="hell-sentence-label">🔥 Hell Sentence Justification</div>
-                                    <div class="hell-sentence-text">${demon.hellSentence}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="schedule-section">
-                        <h3>Baseline Tasks (Mandatory)</h3>
-                        <div class="task-list">
-                            ${demon.baselineTasks.map(task => `
-                                <div class="task-item baseline">
-                                    <div class="task-checkbox checked"></div>
-                                    <div class="task-text">${task}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                    <div class="schedule-section">
-                        <h3>Additional Tasks (Assign 3)</h3>
-                        <div class="task-list" id="dropZoneContainer">
-                            ${[0, 1, 2].map(i => `
-                                <div class="drop-zone" data-slot="${i}" 
-                                     ondragover="handleDragOver(event)" 
-                                     ondragleave="handleDragLeave(event)"
-                                     ondrop="handleDrop(event)">
-                                    Drag task here...
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-
-      // Restore existing assignments
-      const assignments = gameState.assignments[demon.id];
-      assignments.forEach((taskIndex, slotIndex) => {
-        const dropZone = document.querySelector(`[data-slot="${slotIndex}"]`);
-        if (dropZone) {
-          const taskText = demon.optionalTasks[taskIndex];
-          dropZone.classList.add('filled');
-          dropZone.innerHTML = `<div class="task-text">${taskText}</div>`;
-          dropZone.dataset.taskIndex = taskIndex;
-        }
-      });
-    }
-
-    function renderTaskPool() {
-      const demon = gameState.currentDemon;
-      const container = document.getElementById('taskPoolContainer');
-      const assignments = gameState.assignments[demon.id];
-
-      container.innerHTML = demon.optionalTasks.map((task, index) => {
-        const isUsed = assignments.includes(index);
-        return `
-                    <div class="pool-task ${isUsed ? 'used' : ''}" 
-                         draggable="${!isUsed}" 
-                         data-task-index="${index}"
-                         ondragstart="handleDragStart(event)">
-                        ${task}
-                    </div>
-                `;
-      }).join('');
-    }
-
-    // Drag and Drop
-    let draggedTaskIndex = null;
-
-    function handleDragStart(e) {
-      draggedTaskIndex = parseInt(e.target.dataset.taskIndex);
-      e.target.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-    }
-
-    function handleDragOver(e) {
-      e.preventDefault();
-      e.currentTarget.classList.add('drag-over');
-    }
-
-    function handleDragLeave(e) {
-      e.currentTarget.classList.remove('drag-over');
-    }
-
-    function handleDrop(e) {
-      e.preventDefault();
-      e.currentTarget.classList.remove('drag-over');
-
-      const dropZone = e.currentTarget;
-      const slotIndex = parseInt(dropZone.dataset.slot);
-      const demon = gameState.currentDemon;
-
-      // Remove old task from this slot if exists
-      const oldTaskIndex = gameState.assignments[demon.id][slotIndex];
-      if (oldTaskIndex !== undefined) {
-        const oldSlotPos = gameState.assignments[demon.id].indexOf(oldTaskIndex);
-        if (oldSlotPos !== -1) {
-          gameState.assignments[demon.id][oldSlotPos] = undefined;
-        }
-      }
-
-      // Assign new task
-      gameState.assignments[demon.id][slotIndex] = draggedTaskIndex;
-
-      // Update UI
-      const taskText = demon.optionalTasks[draggedTaskIndex];
-      dropZone.classList.add('filled');
-      dropZone.innerHTML = `<div class="task-text">${taskText}</div>`;
-      dropZone.dataset.taskIndex = draggedTaskIndex;
-
-      renderTaskPool();
-      updateSubmitButton();
-
-      // Remove dragging class
-      document.querySelectorAll('.pool-task').forEach(t => t.classList.remove('dragging'));
-    }
-
-    function updateSubmitButton() {
-      const allScheduled = demons.every(demon => {
-        const assignments = gameState.assignments[demon.id];
-        return assignments.filter(a => a !== undefined).length === 3;
-      });
-
-      document.getElementById('submitBtn').disabled = !allScheduled;
-
-      const scheduledCount = demons.filter(demon => {
-        const assignments = gameState.assignments[demon.id];
-        return assignments.filter(a => a !== undefined).length === 3;
-      }).length;
-
-      document.getElementById('scheduledCount').textContent = `${scheduledCount}/3`;
-    }
-
-    function submitShift() {
-      let totalMisery = 0;
-
-      demons.forEach(demon => {
-        const assignments = gameState.assignments[demon.id];
-        assignments.forEach(taskIndex => {
-          if (taskIndex !== undefined) {
-            totalMisery += demon.miseryWeights[taskIndex] || 5;
-          }
+    function narrative(demon, placedIdx, eff) {
+      // pick the strongest tag used to tailor blurb
+      const tagScore = {};
+      placedIdx.forEach(i => {
+        (demon.optional[i].tags || []).forEach(t => {
+          tagScore[t] = (tagScore[t] || 0) + (demon.weights[t] || 5);
         });
       });
-
-      const maxPossibleMisery = 90; // 3 demons × 3 tasks × 10 max weight
-      const efficiency = Math.round((totalMisery / maxPossibleMisery) * 100);
-
-      showModal(
-        '📊 SHIFT REPORT',
-        `<div class="misery-score">
-                    <div class="misery-label">Misery Index</div>
-                    <div class="misery-value">${totalMisery}</div>
-                </div>
-                <p>Efficiency Rating: <strong>${efficiency}%</strong></p>
-                <p>${getFeedback(efficiency)}</p>`,
-        [
-          { text: 'New Shift', action: () => { location.reload(); } }
-        ]
-      );
+      const top = Object.entries(tagScore).sort((a, b) => b[1] - a[1])[0]?.[0] || 'tedium';
+      const lines = {
+        vague: `${demon.name} visibly recoiled at ambiguity. Documentation rituals have failed to prevent suffering.`,
+        impossible: `Deadlines mocked the living and the dead alike. ${demon.name} spiraled at the impossible timeline.`,
+        loop: `Procedural recursion achieved. ${demon.name} is now trapped in a comforting circle of futility.`,
+        isolation: `${demon.name} with no audience: catastrophic. Echoes of silence amplified despair.`,
+        tedium: `Repetition did the work. ${demon.name} learned that boredom is a blade.`,
+        conflict: `Direct confrontation melted ${demon.name} into a puddle of apologies.`,
+        badnews: `Delivering disappointment siphoned hope with clinical efficiency.`
+      };
+      const tone =
+        eff >= 90 ? 'Exceptional torment wrapped in plausible productivity. Management will be… pleased.' :
+          eff >= 75 ? 'Satisfactory suffering with room for sharper edges.' :
+            eff >= 60 ? 'Below expectations — review aversions and escalate cruelty tactfully.' :
+              'Alarmingly humane. Retraining recommended (or reassignment to Floor 404).';
+      return `${lines[top] || 'Efficient malaise achieved.'} ${tone}`;
     }
 
-    function getFeedback(efficiency) {
-      if (efficiency >= 90) return '🔥 <strong>Exceptional.</strong> Your task assignments maximize existential dread while maintaining plausible productivity metrics.';
-      if (efficiency >= 75) return '👍 <strong>Satisfactory.</strong> Adequate misery generation. Consider targeting individual vulnerabilities more precisely.';
-      if (efficiency >= 60) return '⚠️ <strong>Below expectations.</strong> Some demons received tasks they might actually tolerate. Review employee profiles.';
-      return '❌ <strong>Unacceptable.</strong> This level of compassion is inappropriate for Hell management. Immediate retraining required.';
+    function showReport(title, blurb, score, eff) {
+      document.getElementById('reportTitle').textContent = title;
+      document.getElementById('reportBlurb').textContent = blurb;
+      document.getElementById('scoreNum').textContent = `Misery Index: ${score}`;
+      document.getElementById('effPct').textContent = `${eff}%`;
+      const bar = document.getElementById('bar');
+      bar.style.width = '0%';
+      requestAnimationFrame(() => requestAnimationFrame(() => bar.style.width = eff + '%'));
+      document.getElementById('modal').classList.add('show');
+    }
+    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+    /* ---------------------------------------------------------
+       UTIL
+    --------------------------------------------------------- */
+    function pulse(el, msg) {
+      el.style.borderColor = 'var(--danger)';
+      el.style.color = 'var(--danger)';
+      el.title = msg;
+      setTimeout(() => { el.style.borderColor = '#3a2a52'; el.style.color = '#7f70a7'; el.removeAttribute('title'); }, 600);
     }
 
-    function showModal(header, body, actions) {
-      document.getElementById('modalHeader').textContent = header;
-      document.getElementById('modalBody').innerHTML = body;
-      document.getElementById('modalActions').innerHTML = actions.map(action =>
-        `<button class="btn btn-primary" onclick="(${action.action.toString()})()">${action.text}</button>`
-      ).join('');
-      document.getElementById('modal').classList.add('active');
-    }
-
-    function closeModal() {
-      document.getElementById('modal').classList.remove('active');
-    }
-
-    // Initialize on load
-    init();
+    /* Auto-select first demon for convenience */
+    document.querySelector('.demon')?.click();
   </script>
 </body>
 
