@@ -292,6 +292,45 @@
       font-size: 13px;
       color: #f3e9ff;
     }
+
+    /* layout for profile on the left and tasks on the right */
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 18px;
+      align-items: start;
+      margin-top: 8px;
+    }
+
+    .profile-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .profile-image {
+      width: 140px;
+      height: 140px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.16), rgba(192, 132, 252, 0.08));
+      border: 1px solid rgba(139, 92, 246, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f3e9ff;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .profile-bio {
+      font-size: 13px;
+      color: #dcd0f8;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 8px;
+      border-radius: 6px;
+      text-align: left;
+    }
   </style>
 </head>
 
@@ -345,10 +384,10 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
-   const demons = [
-      { id: 'gerald', name: 'Gerald Finch', dept: 'IT', baseline: ['Answer IT ticket emails', 'Attend standup meeting', 'Update the new updates article nobody reads', 'Clean up legacy code', 'Review bug tickets'], optional: ['Attend to 12 tickets for demons needing assistance restarting their computer', 'Unplug and replug HR department’s printers (27)', 'Review code project merge requests with no comments', 'Complete mandatory internet safety training', 'Write a 10-page report on why the Wi-Fi crashed last week', 'Train an intern to close tabs (there are 187 open)'], misery: [9, 7, 10, 8, 7, 10], causeOfDeath: 'Fell asleep at the wheel after working 3 days consecutively', sentence: 'Sold soul for middle management position', bloodType: 'A+', mbti: 'ISTJ', astro: 'Virgo', aspects: ['Low patience', 'Arrogant', 'Hates ambiguity'] },
-      { id: 'cheryl', name: 'Cheryl Stone', dept: 'Sales', baseline: ['Strategy meeting with team', 'Answer emails', 'Review recent contracts', 'Follow up on potential clients', 'Organize new client leads'], optional: ['Data entry in silence', 'Reorganize files alphabetically', 'Complete Manipulation training until reaching a perfect score', 'Solo shift at the crossroads', 'Shadow the new hire’s first soul deal', 'Present quarterly projections to an empty conference room for “practice.”'], misery: [10, 8, 6, 10, 4, 10], causeOfDeath: 'Old age', sentence: 'Sold soul in exchange for ex-husband’s fortune', bloodType: 'O-', mbti: 'ENFP', astro: 'Leo', aspects: ['Charismatic', 'People-pleaser', 'Hates to be alone'] },
-      { id: 'marcus', name: 'Marcus Webb', dept: 'HR', baseline: ['Review incoming applicants', 'Conduct second stage interviews', 'Deny PTO requests', 'Complete mandatory customer service training', 'Respond to all emails'], optional: ['Announce new decaf policy in the break room', 'Hold handling meeting for coworkers causing disruption during work', 'Update 200 outdated policies that no one reads', 'Organize a grief circle for demons demoted to Floor 404', 'Address all complaints from the complaint box by assuming who made the complaints', 'Prepare 100 laminated “Teamwork is Eternal” posters'], misery: [10, 10, 6, 8, 10, 5], causeOfDeath: 'Got in between violent argument of two coworkers', sentence: 'Contributed nothing to society', bloodType: 'B+', mbti: 'INFJ', astro: 'Capricorn', aspects: ['Overly formal', 'Rule-oriented', 'Hates conflict and confrontation'] }
+    const demons = [
+      { id: 'gerald', name: 'Gerald Finch', dept: 'IT', baseline: ['Answer IT ticket emails', 'Attend standup meeting', 'Update the new updates article nobody reads', 'Clean up legacy code', 'Review bug tickets'], optional: ['Attend to 12 tickets for demons needing assistance restarting their computer', 'Unplug and replug HR department’s printers (27)', 'Review code project merge requests with no comments', 'Complete mandatory internet safety training', 'Write a 10-page report on why the Wi-Fi crashed last week', 'Train an intern to close tabs (there are 187 open)'], misery: [9, 7, 10, 8, 7, 10], causeOfDeath: 'Fell asleep at the wheel after working 3 days consecutively', sentence: 'Sold soul for middle management position', bloodType: 'A+', mbti: 'ISTJ', astro: 'Virgo', aspects: ['Low patience', 'Arrogant', 'Hates ambiguity'], bio: 'Seasoned systems engineer who values order and predictability. Gets frustrated by vague requirements and loves tidy dashboards.' },
+      { id: 'cheryl', name: 'Cheryl Stone', dept: 'Sales', baseline: ['Strategy meeting with team', 'Answer emails', 'Review recent contracts', 'Follow up on potential clients', 'Organize new client leads'], optional: ['Data entry in silence', 'Reorganize files alphabetically', 'Complete Manipulation training until reaching a perfect score', 'Solo shift at the crossroads', 'Shadow the new hire’s first soul deal', 'Present quarterly projections to an empty conference room for “practice.”'], misery: [10, 8, 6, 10, 4, 10], causeOfDeath: 'Old age', sentence: 'Sold soul in exchange for ex-husband’s fortune', bloodType: 'O-', mbti: 'ENFP', astro: 'Leo', aspects: ['Charismatic', 'People-pleaser', 'Hates to be alone'], bio: 'A persuasive closer who thrives on attention and validation. Loves social rituals but crumbles when isolated.' },
+      { id: 'marcus', name: 'Marcus Webb', dept: 'HR', baseline: ['Review incoming applicants', 'Conduct second stage interviews', 'Deny PTO requests', 'Complete mandatory customer service training', 'Respond to all emails'], optional: ['Announce new decaf policy in the break room', 'Hold handling meeting for coworkers causing disruption during work', 'Update 200 outdated policies that no one reads', 'Organize a grief circle for demons demoted to Floor 404', 'Address all complaints from the complaint box by assuming who made the complaints', 'Prepare 100 laminated “Teamwork is Eternal” posters'], misery: [10, 10, 6, 8, 10, 5], causeOfDeath: 'Got in between violent argument of two coworkers', sentence: 'Contributed nothing to society', bloodType: 'B+', mbti: 'INFJ', astro: 'Capricorn', aspects: ['Overly formal', 'Rule-oriented', 'Hates conflict and confrontation'], bio: 'HR veteran with a rigid rulebook. Loves procedures and quietly feels bad about hard decisions.' }
     ];
 
 
@@ -378,28 +417,33 @@
     function renderSchedule() {
       const d = state.current; const area = document.getElementById('scheduleArea');
       // Build a small profile card with helpful context for the player
-      const profileHtml = `
-        <div class="profile-card">
-          <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
-            <div class="profile-item"><strong>Cause of death:</strong> ${d.causeOfDeath}</div>
-            <div class="profile-item"><strong>Sentence:</strong> ${d.sentence}</div>
-            <div class="profile-item"><strong>Blood type:</strong> ${d.bloodType}</div>
+      // Build a left-column profile (image + bio + details) and right-side task list
+      area.innerHTML = `
+        <h2 style='color:#c084fc;text-align:center;'>${d.name} — ${d.dept}</h2>
+        <div class="schedule-grid">
+          <div class="profile-column">
+            <div class="profile-image" aria-hidden="true">${d.name.split(' ').map(n => n[0]).slice(0, 2).join('')}</div>
+            <div class="profile-card" style="width:100%; text-align:left;">
+              <div class="profile-bio">${d.bio}</div>
+              <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+                <div class="profile-item"><strong>Cause:</strong> ${d.causeOfDeath}</div>
+                <div class="profile-item"><strong>Sentence:</strong> ${d.sentence}</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+                  <div class="profile-item"><strong>Blood:</strong> ${d.bloodType}</div>
+                  <div class="profile-item"><strong>MBTI:</strong> ${d.mbti}</div>
+                  <div class="profile-item"><strong>Astro:</strong> ${d.astro}</div>
+                </div>
+                <div style="margin-top:6px;" class="profile-item"><strong>Aspects:</strong> ${d.aspects.join(', ')}</div>
+              </div>
+            </div>
           </div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
-            <div class="profile-item"><strong>MBTI:</strong> ${d.mbti}</div>
-            <div class="profile-item"><strong>Astro:</strong> ${d.astro}</div>
-            <div class="profile-item"><strong>Aspects:</strong> ${d.aspects.join(', ')}</div>
+          <div class="tasks-column">
+            <div class='task-list-vertical' id='scheduleList'>
+              ${d.baseline.map((t, i) => `<div class='task-item baseline' data-baseline-index='${i}'>${t}</div>`).join('')}
+            </div>
+            <p style='text-align:center;color:#9ca3af;margin-top:8px;'>Drag up to 3 optional tasks from the right into the list above. Drop between items to insert.</p>
           </div>
         </div>`;
-
-      // Render baseline tasks once as a vertical list. Players may drop optional tasks
-      // from the pool between any two items; up to 3 optional tasks may be assigned.
-      area.innerHTML = `<h2 style='color:#c084fc;text-align:center;'>${d.name} — ${d.dept}</h2>
-      ${profileHtml}
-      <div class='task-list-vertical' id='scheduleList'>
-        ${d.baseline.map((t, i) => `<div class='task-item baseline' data-baseline-index='${i}'>${t}</div>`).join('')}
-      </div>
-      <p style='text-align:center;color:#9ca3af;margin-top:8px;'>Drag up to 3 optional tasks from the right into the list above. Drop between items to insert.</p>`;
 
       // Attach drag/drop listeners to the schedule list container
       const scheduleList = document.getElementById('scheduleList');
