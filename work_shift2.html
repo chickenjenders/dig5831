@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Infernal Affairs - Shift 2</title>
   <style>
-    /* Copy of work.html styles — shift 2 can be customized further */
     body {
       background: linear-gradient(135deg, #1a1625, #2d1b3d);
       color: #e0e0e0;
@@ -30,16 +29,147 @@
       font-size: 22px;
     }
 
-    /* Minimal styles here; the rest is identical to work.html for now */
     .container {
+      display: grid;
+      grid-template-columns: 250px 1fr 300px;
+      gap: 20px;
       padding: 30px;
     }
 
+    /* Sidebar */
+    .demon-list {
+      background: rgba(15, 10, 26, 0.6);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 10px;
+      padding: 15px;
+      height: fit-content;
+    }
+
+    .demon-item {
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .demon-item:hover {
+      background: rgba(139, 92, 246, 0.25);
+    }
+
+    .demon-item.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+      position: relative;
+    }
+
+    .demon-item.locked::after {
+      content: '🔒';
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      font-size: 14px;
+    }
+
+    /* Schedule Area */
+    .schedule-area {
+      background: rgba(15, 10, 26, 0.6);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 12px;
+      padding: 25px;
+    }
+
+    .shifts {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .shift-column {
+      flex: 1;
+      background: rgba(139, 92, 246, 0.05);
+      border-radius: 8px;
+      padding: 16px;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .shift-column h3 {
+      text-align: center;
+      color: #c084fc;
+      margin-bottom: 12px;
+    }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .task-item {
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    .drop-slot {
+      border: 2px dashed rgba(139, 92, 246, 0.3);
+      border-radius: 6px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .drop-slot.drag-over {
+      border-color: #c084fc;
+      background: rgba(139, 92, 246, 0.1);
+    }
+
+    .drop-slot.filled {
+      background: rgba(139, 92, 246, 0.2);
+      border-color: #8b5cf6;
+      color: #fff;
+    }
+
+    /* Task Pool */
+    .task-pool {
+      background: rgba(15, 10, 26, 0.6);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 10px;
+      padding: 20px;
+      height: fit-content;
+    }
+
+    .pool-task {
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 10px;
+      cursor: move;
+      font-size: 13px;
+    }
+
+    .pool-task.used {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Submit Bar */
     .submit-bar {
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100%;
+      background: rgba(15, 10, 26, 0.9);
+      border-top: 2px solid #8b5cf6;
       text-align: center;
       padding: 15px;
     }
@@ -47,43 +177,1165 @@
     .submit-btn {
       background: linear-gradient(135deg, #8b5cf6, #c084fc);
       border: none;
-      padding: 12px 40px;
       border-radius: 6px;
       color: #fff;
+      padding: 12px 40px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
     }
 
-    /* small note box for Shift 2 intro */
-    .shift2-note {
-      background: rgba(255, 255, 255, 0.03);
+    .submit-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1e1b2e;
+      border: 2px solid #8b5cf6;
+      border-radius: 12px;
+      padding: 30px;
+      width: 400px;
+      text-align: center;
+    }
+
+    /* vertical schedule list and insertion marker */
+    .task-list-vertical {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .task-item.baseline {
+      padding: 10px 12px;
+      background: rgba(139, 92, 246, 0.12);
+      border-radius: 6px;
+    }
+
+    .task-item.assigned-task {
+      background: linear-gradient(90deg, rgba(139, 92, 246, 0.16), rgba(139, 92, 246, 0.22));
+      border-radius: 6px;
+      padding: 10px 12px;
+      cursor: move;
+    }
+
+    .insertion-marker {
+      height: 8px;
+      background: rgba(192, 132, 252, 0.25);
+      border-radius: 4px;
+      margin: 4px 0;
+      transition: all 140ms ease;
+      transform-origin: left center;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      bottom: 28px;
+      background: rgba(30, 27, 46, 0.95);
+      color: #e9e4ff;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      padding: 10px 16px;
+      border-radius: 8px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      z-index: 1200;
+    }
+
+    .toast.active {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Profile card shown above the schedule when a demon is selected */
+    .profile-card {
+      background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(139, 92, 246, 0.08);
-      padding: 18px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+      color: #e7def8;
+      text-align: center;
+    }
+
+    .profile-item {
+      background: rgba(139, 92, 246, 0.06);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #f3e9ff;
+    }
+
+    /* layout for profile on the left and tasks on the right */
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 18px;
+      align-items: start;
+      margin-top: 8px;
+    }
+
+    .profile-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .profile-image {
+      position: relative;
+      overflow: hidden;
+      width: 140px;
+      height: 140px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.16), rgba(192, 132, 252, 0.08));
+      border: 1px solid rgba(139, 92, 246, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f3e9ff;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .profile-image img.profile-photo {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+    }
+
+    /* variant for slightly smaller source images (centered) */
+    .profile-image img.small-photo {
+      position: absolute;
+      width: 92% !important;
+      height: 92% !important;
+      left: 50% !important;
+      top: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      /* show the full image without cropping */
+      object-fit: contain;
+      object-position: center center;
+      display: block;
+      background-color: transparent;
+    }
+
+    .profile-bio {
+      font-size: 13px;
+      color: #dcd0f8;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 8px;
+      border-radius: 6px;
+      text-align: left;
+    }
+
+    /* Email app styles */
+    .app-icons {
+      margin-right: 8px;
+      position: absolute;
+      right: 18px;
+      top: 12px;
+      z-index: 1500;
+    }
+
+    .app-icons button {
+      background: transparent;
+      border: none;
+      color: #e6ddff;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 6px;
+      position: relative;
+    }
+
+    .app-icons button:hover {
+      background: rgba(139, 92, 246, 0.08);
+    }
+
+    .email-inbox {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 720px;
+      height: 72vh;
+      min-height: 420px;
+      background: linear-gradient(180deg, #161226, #211730);
+      border: 1px solid rgba(139, 92, 246, 0.35);
       border-radius: 10px;
-      max-width: 900px;
-      margin: 36px auto;
+      box-shadow: 0 20px 60px rgba(10, 8, 18, 0.7);
+      display: none;
+      flex-direction: column;
+      z-index: 1400;
+      overflow: hidden;
+    }
+
+    .email-content {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .email-inbox-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(139, 92, 246, 0.06);
+      color: #e6ddff;
+      background: linear-gradient(90deg, rgba(139, 92, 246, 0.03), transparent);
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .email-list {
+      padding: 10px;
+      overflow: auto;
+      width: 36%;
+      border-right: 1px solid rgba(139, 92, 246, 0.04);
+      box-sizing: border-box;
+    }
+
+    .email-preview {
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent);
+      display: block;
+      width: 64%;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    .email-item {
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .email-item:hover {
+      background: rgba(139, 92, 246, 0.06);
+    }
+
+    .email-item.unread {
+      box-shadow: inset 3px 0 0 0 #c084fc;
+    }
+
+    .email-item.selected {
+      background: rgba(139, 92, 246, 0.08);
+    }
+
+    .email-item div {
+      line-height: 1.1
+    }
+
+    .unread-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ef4444;
+      color: white;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    /* resize handle */
+    .resize-handle {
+      width: 18px;
+      height: 18px;
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      cursor: nwse-resize;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      z-index: 1600;
+    }
+
+    /* unread badge pulse animation */
+    @keyframes pulse-badge {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+
+      70% {
+        transform: scale(1.12);
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+      }
+
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
+    }
+
+    .unread-badge.pulse {
+      animation: pulse-badge 1200ms ease-in-out 3;
+    }
+
+    /* small incoming notification popup */
+    .mail-notify {
+      position: fixed;
+      right: 26px;
+      bottom: 110px;
+      background: linear-gradient(180deg, #2b2338, #1d1726);
+      color: #fff;
+      border: 1px solid rgba(139, 92, 246, 0.25);
+      padding: 10px 14px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 1600;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 220ms ease, transform 220ms ease;
+      max-width: 320px;
+      font-size: 13px;
+    }
+
+    .mail-notify.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Urgent policy updates panel */
+    .policies-panel {
+      margin-top: 14px;
+      background: linear-gradient(180deg, rgba(255, 230, 230, 0.03), rgba(255, 200, 200, 0.02));
+      border: 2px solid rgba(239, 68, 68, 0.18);
+      padding: 12px;
+      border-radius: 8px;
+      color: #ffeef0;
+    }
+
+    .policies-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .policies-header strong {
+      color: #ffb4b4;
+    }
+
+    .policy-item {
+      background: rgba(239, 68, 68, 0.06);
+      border: 1px solid rgba(239, 68, 68, 0.12);
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      color: #ffeef0;
+      font-size: 13px;
+    }
+
+    .policy-actions button {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: #ffdede;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .task-number {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      text-align: center;
+      border-radius: 6px;
+      margin-right: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      color: #ffdede;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      flex: 0 0 auto;
+    }
+
+    /* visual marker for tasks that violate policies (penalized) */
+    .task-item.noncompliant {
+      outline: 2px dashed rgba(255, 120, 120, 0.35);
+      background: linear-gradient(90deg, rgba(255, 120, 120, 0.03), rgba(139, 92, 246, 0.06));
     }
   </style>
 </head>
 
 <body>
   <header>
-    <h1>Infernal Affairs — Second Shift</h1>
+    <h1>Infernal Affairs — Demon Shift Scheduler (Shift 2)</h1>
   </header>
 
-  <div class="shift2-note">
-    <h2 style="color:#c084fc">Shift 2 — Welcome back</h2>
-    <p style="color:#dcd0f8">You skipped break time and were immediately assigned to the second shift. This page starts
-      as a copy of the main scheduling station. I kept the layout identical so you can add additional complications here
-      — let me know what extra elements or mechanics you want (timers, reduced pool of tasks, extra constraints, etc.).
-    </p>
+  <div class="app-icons" aria-hidden="true">
+    <button id="emailIcon" title="Open Mail" aria-label="Open Mail" style="font-size:18px;position:relative;">📧 <span
+        id="unreadBadge" class="unread-badge" aria-hidden="true" style="display:none">0</span></button>
   </div>
 
-  <!-- For now, copy the main work.html UI so players can continue. We'll expand Shift 2 in follow-ups. -->
+  <div class="container">
+    <div class="demon-list" id="demonList"></div>
+    <div class="schedule-area" id="scheduleArea">
+      <p style="color:#9ca3af; text-align:center;">Select a demon to view schedule</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="task-pool" id="taskPool"></div>
 
-  <!-- Quick link back to main scheduling page (for testing) -->
-  <div style="text-align:center;margin-top:20px;">
-    <a href="work.html" style="color:#c084fc;">Return to Shift 1 (work.html)</a>
+      <!-- Urgent policy updates panel (added for Shift 2) -->
+      <div class="policies-panel" id="policyPanel" aria-live="polite">
+        <div class="policies-header">
+          <strong>⚠️ Urgent Policy Updates</strong>
+          <div class="policy-actions"><button id="ackAllBtn">Acknowledge all</button></div>
+        </div>
+        <div id="policyList">
+          <!-- policy items rendered here -->
+        </div>
+      </div>
+    </div>
   </div>
 
+  <div class="submit-bar">
+    <button class="submit-btn" id="submitBtn" disabled>Submit Schedule</button>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle" style="color:#c084fc"></h2>
+      <p id="modalBody"></p>
+      <button class="submit-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- Welcome / instructions modal shown on page load -->
+  <div class="modal" id="welcomeModal">
+    <div class="modal-content">
+      <h2 style="color:#c084fc">Welcome to Infernal Affairs — Shift 2</h2>
+      <p style="color:#e0e0e0; text-align:left;">Shift 2 continues the work. Assign additional tasks to each demon for
+        this shift.<br><br>
+        How to play:
+      <ul style="text-align:left; color:#d1c0f8;">
+        <li>Choose a demon from the left.</li>
+        <li>Drag an additional task from the right into the single empty slot for each shift.</li>
+        <li>Fill all three slots to enable the Submit button and view the shift report.</li>
+      </ul>
+      </p>
+      <label style="display:flex;align-items:center;gap:8px;justify-content:center;margin-top:8px;color:#cfc1ff;"><input
+          type="checkbox" id="hideWelcomeCheckbox"> Don't show this again</label>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;">
+        <button class="submit-btn" onclick="closeWelcomeModal()">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- toast element for brief messages -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- small mail notification -->
+  <div id="mailNotify" class="mail-notify" aria-hidden="true"></div>
+
+  <!-- Email Inbox (hidden until opened) -->
+  <div class="email-inbox" id="emailInbox" role="dialog" aria-modal="false" aria-hidden="true">
+    <div class="email-inbox-header">
+      <strong>Inbox</strong>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button id="composeBtn" class="submit-btn" style="padding:6px 10px;font-size:13px;">New</button>
+        <button id="closeEmail" class="submit-btn" style="padding:6px 10px;font-size:13px;">Close</button>
+      </div>
+    </div>
+    <div class="email-content">
+      <div class="email-list" id="emailList" tabindex="0"></div>
+      <div class="email-preview" id="emailPreview" aria-hidden="true">
+        <div id="previewHeader" style="font-weight:700;margin-bottom:6px"></div>
+        <div id="previewBody" style="color:#dcd0f8;font-size:14px"></div>
+      </div>
+    </div>
+    <div class="resize-handle" id="resizeHandle" title="Drag to resize" aria-hidden="true"></div>
+  </div>
+
+  <script>
+    const demons = [
+      { id: 'gerald', name: 'Gerald Finch', dept: 'IT', baseline: ['Answer IT ticket emails', 'Attend standup meeting', 'Update the new updates article nobody reads', 'Clean up legacy code', 'Review bug tickets'], optional: ['Attend to 12 tickets for demons needing assistance restarting their computer', 'Unplug and replug HR department’s printers (27)', 'Review code project merge requests with no comments', 'Complete mandatory internet safety training', 'Write a 10-page report on why the Wi-Fi crashed last week', 'Train an intern to close tabs (there are 187 open)'], misery: [9, 7, 10, 8, 7, 10], causeOfDeath: 'Fell asleep at the wheel after working 3 days consecutively', sentence: 'Sold soul for middle management position', bloodType: 'A+', mbti: 'ISTJ', astro: 'Virgo', aspects: ['Low patience', 'Arrogant', 'Hates ambiguity'], bio: 'Seasoned systems engineer who values order and predictability. Gets frustrated by vague requirements and loves tidy dashboards.', photo: 'cecil.png' },
+      { id: 'cheryl', name: 'Cheryl Stone', dept: 'Sales', baseline: ['Strategy meeting with team', 'Answer emails', 'Review recent contracts', 'Follow up on potential clients', 'Organize new client leads'], optional: ['Data entry in silence', 'Reorganize files alphabetically', 'Complete Manipulation training until reaching a perfect score', 'Solo shift at the crossroads', 'Shadow the new hire’s first soul deal', 'Present quarterly projections to an empty conference room for “practice.”'], misery: [10, 8, 6, 10, 4, 10], causeOfDeath: 'Old age', sentence: 'Sold soul in exchange for ex-husband’s fortune', bloodType: 'O-', mbti: 'ENFP', astro: 'Leo', aspects: ['Charismatic', 'People-pleaser', 'Hates to be alone'], bio: 'A persuasive closer who thrives on attention and validation. Loves social rituals but crumbles when isolated.', photo: 'raquel.png' },
+      { id: 'marcus', name: 'Marcus Webb', dept: 'HR', baseline: ['Review incoming applicants', 'Conduct second stage interviews', 'Deny PTO requests', 'Complete mandatory customer service training', 'Respond to all emails'], optional: ['Announce new decaf policy in the break room', 'Hold handling meeting for coworkers causing disruption during work', 'Update 200 outdated policies that no one reads', 'Organize a grief circle for demons demoted to Floor 404', 'Address all complaints from the complaint box by assuming who made the complaints', 'Prepare 100 laminated “Teamwork is Eternal” posters'], misery: [10, 10, 6, 8, 10, 5], causeOfDeath: 'Got in between violent argument of two coworkers', sentence: 'Contributed nothing to society', bloodType: 'B+', mbti: 'INFJ', astro: 'Capricorn', aspects: ['Overly formal', 'Rule-oriented', 'Hates conflict and confrontation'], bio: 'HR veteran with a rigid rulebook. Loves procedures and quietly feels bad about hard decisions.', photo: 'jeffrey.png' },
+      { id: 'lilith', name: 'Lilith Vex', dept: 'Procurement', baseline: ['Approve infernal purchase orders', 'Audit supply summoning logs', 'Negotiate with vendor wraiths', 'Catalog cursed office supplies', 'Coordinate bulk sulfur deliveries'], optional: ['Haggle for lower eternal flame rates', 'Approve 400 stapler requisitions', 'Perform inventory of cursed mugs', 'Negotiate vendor bribe schedule', 'File procurement grievances to Central Torment'], misery: [8, 9, 7, 8, 9, 7], causeOfDeath: 'Contract dispute gone wrong', sentence: 'Forced to source cheaper souls forever', bloodType: 'AB-', mbti: 'ENTJ', astro: 'Scorpio', aspects: ['Bargainer', 'Pragmatic', 'Thinks in spreadsheets'], bio: 'Resourceful procurement manager who can find a deal on anything — including souls.', photo: '' },
+      { id: 'obad', name: 'Obad Kline', dept: 'Logistics', baseline: ['Route portal shipments', 'Inspect conveyor wards', 'Manage shift handoffs', 'Calibrate teleportation anchors', 'File delayed shipment reports'], optional: ['Oversee midnight portal reroute', 'Clear backlog of lost parcels', 'Train new courier imps', 'Fix broken direction sigils', 'Balance the load of condemned freight'], misery: [9, 8, 8, 9, 7, 8], causeOfDeath: 'Crushed by wayward freight', sentence: 'Assigned to eternal night shift logistics', bloodType: 'O+', mbti: 'ESTP', astro: 'Taurus', aspects: ['Practical', 'Hands-on', 'Impatient'], bio: 'Logistics specialist who keeps the underworld moving, one cursed crate at a time.', photo: '' }
+    ];
+
+
+    const MAX_TASKS = 8; // total allowed tasks (baseline + assigned)
+    let state = { current: null, assignments: {}, locked: {}, finalScores: {} };
+
+    function init() {
+      const list = document.getElementById('demonList');
+      demons.forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'demon-item';
+        el.innerHTML = `<strong>${d.name}</strong><br><small>${d.dept}</small>`;
+        el.onclick = () => selectDemon(d.id);
+        list.appendChild(el);
+      });
+      // show welcome on first load unless hidden
+      if (localStorage.getItem('hideWelcome') !== 'true') showWelcomeModal();
+    }
+
+    function selectDemon(id) {
+      if (state.locked[id]) return;
+      state.current = demons.find(d => d.id === id);
+      renderSchedule();
+      renderTasks();
+      document.getElementById('submitBtn').disabled = true;
+    }
+
+    function renderSchedule() {
+      const d = state.current; const area = document.getElementById('scheduleArea');
+      // Build a small profile card with helpful context for the player
+      // Build a left-column profile (image + bio + details) and right-side task list
+      area.innerHTML = `
+        <h2 style='color:#c084fc;text-align:center;'>${d.name} — ${d.dept}</h2>
+        <div class="schedule-grid">
+          <div class="profile-column">
+              <div class="profile-image" aria-hidden="true">
+                  <img class="profile-photo ${d.id === 'gerald' ? 'small-photo' : ''}" src="${d.photo || ''}" alt="${d.name}" onerror="this.style.display='none'" />
+                </div>
+              </div>
+            <div class="profile-card" style="width:100%; text-align:left;">
+              <div class="profile-bio">${d.bio}</div>
+              <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+                <div class="profile-item"><strong>Cause:</strong> ${d.causeOfDeath}</div>
+                <div class="profile-item"><strong>Sentence:</strong> ${d.sentence}</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+                  <div class="profile-item"><strong>Blood:</strong> ${d.bloodType}</div>
+                  <div class="profile-item"><strong>MBTI:</strong> ${d.mbti}</div>
+                  <div style="margin-top:6px;" class="profile-item"><strong>Aspects:</strong> ${d.aspects.join(', ')}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tasks-column">
+            <div class='task-list-vertical' id='scheduleList'>
+              ${d.baseline.map((t, i) => `<div class='task-item baseline' data-baseline-index='${i}'>${t}</div>`).join('')}
+              </div>
+              <p style='text-align:center;color:#9ca3af;margin-top:8px;'>Drag up to 3 additional tasks from the right into the list above. Drop between items to insert.</p>
+          </div>
+        </div>`;
+
+      // Attach drag/drop listeners to the schedule list container
+      const scheduleList = document.getElementById('scheduleList');
+      scheduleList.ondragover = listDragOver;
+      scheduleList.ondrop = listDrop;
+      scheduleList.ondragleave = listDragLeave;
+
+      // restore any previously-saved assignments for this demon
+      const saved = state.assignments[d.id] || [];
+      saved.forEach(idx => {
+        const poolTask = document.querySelector(`.pool-task[data-index='${idx}']`);
+        // if poolTask not yet rendered, we'll mark used after renderTasks runs
+      });
+      // ensure numbering is up to date
+      renumberSchedule();
+    }
+
+    function renderTasks() {
+      const pool = document.getElementById('taskPool');
+      const d = state.current; pool.innerHTML = '<h3>Additional Tasks</h3>';
+      d.optional.forEach((t, i) => {
+        const el = document.createElement('div');
+        el.className = 'pool-task'; el.textContent = t;
+        el.draggable = true; el.dataset.index = i;
+        el.ondragstart = dragStart;
+        el.tabIndex = 0;
+        el.onkeydown = poolKeyDown;
+        pool.appendChild(el);
+      });
+      // allow dropping back into the pool to unassign tasks
+      pool.ondragover = (e) => e.preventDefault();
+      pool.ondrop = dropToPool;
+      // mark any pool items used by current assignments
+      markPoolUsed();
+      // also restore assigned elements in order
+      const scheduleList = document.getElementById('scheduleList');
+      if (scheduleList) {
+        // remove any existing assigned-task elements
+        Array.from(scheduleList.querySelectorAll('.assigned-task')).forEach(a => a.remove());
+        const saved = state.assignments[state.current.id] || [];
+        saved.forEach(idx => {
+          const t = d.optional[idx];
+          if (t == null) return;
+          const newEl = document.createElement('div');
+          newEl.className = 'task-item assigned-task';
+          newEl.textContent = t;
+          newEl.draggable = true;
+          newEl.dataset.index = idx;
+          newEl.tabIndex = 0;
+          newEl.onkeydown = assignedKeyDown;
+          newEl.ondragstart = dragStart;
+          newEl.ondragend = dragEnd;
+          // animate restoration of saved assigned items
+          newEl.style.opacity = 0; newEl.style.transform = 'translateY(6px)';
+          scheduleList.appendChild(newEl);
+          requestAnimationFrame(() => { newEl.style.transition = 'opacity 160ms ease, transform 160ms ease'; newEl.style.opacity = 1; newEl.style.transform = ''; });
+        });
+        // renumber after restoring assigned items
+        renumberSchedule();
+        checkReady();
+      }
+    }
+
+    // renumber schedule items so each shows its 1-based position
+    function renumberSchedule() {
+      const list = document.getElementById('scheduleList');
+      if (!list) return;
+      const items = Array.from(list.children).filter(c => c.classList && (c.classList.contains('baseline') || c.classList.contains('assigned-task')));
+      items.forEach((it, idx) => {
+        let num = it.querySelector('.task-number');
+        if (!num) {
+          num = document.createElement('span');
+          num.className = 'task-number';
+          // wrap content
+          const inner = document.createElement('span');
+          while (it.firstChild) inner.appendChild(it.firstChild);
+          it.appendChild(inner);
+          it.insertBefore(num, inner);
+        }
+        num.textContent = String(idx + 1);
+      });
+    }
+
+    // helper: get the display text for a schedule item (without the number)
+    function getItemText(itemEl) {
+      if (!itemEl) return '';
+      const inner = itemEl.querySelector('span');
+      if (inner) return inner.textContent.trim();
+      return itemEl.textContent.trim();
+    }
+
+    // build ordered array of task texts for the current schedule list
+    function getScheduleArray(listEl) {
+      const list = listEl || document.getElementById('scheduleList');
+      if (!list) return [];
+      const items = Array.from(list.children).filter(c => c.classList && (c.classList.contains('baseline') || c.classList.contains('assigned-task')));
+      return items.map(it => getItemText(it));
+    }
+
+    // Evaluate policies against the actual schedule list DOM and return structured violations.
+    // Rules supported: 'ban_keyword', 'require_before', 'fixed_position'.
+    // This function does NOT block actions. Instead it returns violations and the UI marks affected items as noncompliant.
+    function evaluatePoliciesOnList(listEl, demon) {
+      const list = listEl || document.getElementById('scheduleList');
+      if (!list) return [];
+      const items = Array.from(list.children).filter(c => c.classList && (c.classList.contains('baseline') || c.classList.contains('assigned-task')));
+      const texts = items.map(it => getItemText(it));
+      const violations = [];
+
+      for (const policy of policies) {
+        if (!policy.rules) continue;
+        for (const rule of policy.rules) {
+          const type = rule.type;
+          const penalty = (rule.penalty != null) ? Number(rule.penalty) : 0.5; // default penalty multiplier when violated
+          if (type === 'ban_keyword') {
+            const kw = rule.keyword.toLowerCase();
+            const affected = [];
+            texts.forEach((t, i) => { if (t.toLowerCase().includes(kw)) affected.push(i); });
+            if (affected.length) {
+              violations.push({ policyId: policy.id, policyTitle: policy.title, rule, reason: `Tasks containing "${rule.keyword}" will be penalized.`, affected, penalty });
+            }
+          } else if (type === 'require_before') {
+            const a = rule.keywordA.toLowerCase(); const b = rule.keywordB.toLowerCase();
+            let idxA = -1, idxB = -1;
+            texts.forEach((t, i) => { const s = t.toLowerCase(); if (s.includes(a) && idxA === -1) idxA = i; if (s.includes(b) && idxB === -1) idxB = i; });
+            if (idxA !== -1 && idxB !== -1 && idxA >= idxB) {
+              // both are relevant to the violation
+              violations.push({ policyId: policy.id, policyTitle: policy.title, rule, reason: `Items matching "${rule.keywordA}" should come before "${rule.keywordB}" — penalty applied.`, affected: [idxA, idxB], penalty });
+            }
+          } else if (type === 'fixed_position') {
+            const kw = rule.keyword.toLowerCase(); const pos = Number(rule.position) - 1; // 0-based
+            let foundIdx = -1;
+            texts.forEach((t, i) => { if (t.toLowerCase().includes(kw) && foundIdx === -1) foundIdx = i; });
+            if (foundIdx !== -1 && foundIdx !== pos) {
+              violations.push({ policyId: policy.id, policyTitle: policy.title, rule, reason: `Item matching "${rule.keyword}" is not at required position ${rule.position} — penalty applied.`, affected: [foundIdx], penalty });
+            }
+          } else if (type === 'meetings_before_additional') {
+            // Ensure baseline meeting items come before any assigned tasks. Penalize assigned tasks that appear before a meeting.
+            const meetingBaselineIdxs = items.map((it, i) => ({ it, i })).filter(x => x.it.classList.contains('baseline') && getItemText(x.it).toLowerCase().includes('meeting')).map(x => x.i);
+            if (meetingBaselineIdxs.length) {
+              const lastMeeting = Math.max(...meetingBaselineIdxs);
+              const affected = [];
+              items.forEach((it, i) => { if (it.classList.contains('assigned-task') && i <= lastMeeting) affected.push(i); });
+              if (affected.length) {
+                violations.push({ policyId: policy.id, policyTitle: policy.title, rule, reason: `Additional tasks should be assigned after mandatory meetings.`, affected, penalty });
+              }
+            }
+          } else if (type === 'require_training_for_dept') {
+            // If demon matches the specified dept, require at least one task mentioning HR/customer-service training keywords.
+            const dept = (rule.dept || '').toLowerCase();
+            if (demon && demon.dept && demon.dept.toLowerCase() === dept) {
+              const kws = (rule.keywords && rule.keywords.length) ? rule.keywords.map(k => k.toLowerCase()) : ['hr', 'human resources', 'customer service'];
+              const found = texts.some(t => {
+                const s = t.toLowerCase();
+                return kws.some(kw => s.includes(kw)) || (s.includes('training') && kws.some(kw => s.includes(kw)));
+              });
+              if (!found) {
+                // penalize all assigned tasks
+                const affected = items.map((it, i) => it.classList.contains('assigned-task') ? i : -1).filter(i => i >= 0);
+                if (affected.length) {
+                  violations.push({ policyId: policy.id, policyTitle: policy.title, rule, reason: `IT demons must be assigned an HR training task.`, affected, penalty });
+                }
+              }
+            }
+          }
+        }
+      }
+      return violations;
+    }
+
+    // Mark/unmark items in the given list based on violations (list of violation objects with affected positions)
+    function applyNoncompliantMarkers(listEl, violations) {
+      const list = listEl || document.getElementById('scheduleList');
+      if (!list) return;
+      const items = Array.from(list.children).filter(c => c.classList && (c.classList.contains('baseline') || c.classList.contains('assigned-task')));
+      // compute a set of affected positions
+      const affectedPos = new Set();
+      violations.forEach(v => { (v.affected || []).forEach(i => affectedPos.add(i)); });
+      items.forEach((it, idx) => {
+        if (it.classList.contains('assigned-task') && affectedPos.has(idx)) it.classList.add('noncompliant'); else it.classList.remove('noncompliant');
+      });
+    }
+
+    // Helper: given a list and returned violations, return a map from position -> min penalty multiplier
+    function buildPenaltyMap(listEl, violations) {
+      const map = new Map();
+      violations.forEach(v => {
+        const p = (v.penalty != null) ? Number(v.penalty) : 0.5;
+        (v.affected || []).forEach(pos => {
+          if (!map.has(pos)) map.set(pos, p); else map.set(pos, Math.min(map.get(pos), p));
+        });
+      });
+      return map; // pos -> multiplier (e.g., 0.5)
+    }
+
+    // -- rest of the script is identical to work.html (drag/drop handlers, toasts, modal, email, incoming simulation, etc.) --
+    // For brevity I will reuse the same logic from work.html below.
+
+    let dragged = null; // the element being dragged
+    let dragSource = null; // 'pool' or 'assigned'
+    let insertionMarker = null;
+
+    function ensureMarker() {
+      if (!insertionMarker) {
+        insertionMarker = document.createElement('div');
+        insertionMarker.className = 'insertion-marker';
+      }
+    }
+    function clearMarker() {
+      if (insertionMarker && insertionMarker.parentElement) insertionMarker.parentElement.removeChild(insertionMarker);
+    }
+
+    function dragStart(e) {
+      dragged = e.target;
+      if (!dragged) return;
+      if (dragged.classList.contains('pool-task')) dragSource = 'pool';
+      else if (dragged.classList.contains('assigned-task')) dragSource = 'assigned';
+      else dragSource = null;
+      setTimeout(() => dragged && (dragged.style.opacity = '0.6'), 0);
+    }
+
+    function dragEnd(e) { if (dragged) dragged.style.opacity = ''; dragged = null; dragSource = null; clearMarker(); }
+
+    function poolKeyDown(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const el = e.currentTarget;
+        const assignedCount = document.querySelectorAll('.assigned-task').length;
+        const baselineCount = (state.current && state.current.baseline) ? state.current.baseline.length : 0;
+        const allowedAssigned = Math.max(0, MAX_TASKS - baselineCount);
+        if (assignedCount >= allowedAssigned) { showToast(`You may only assign up to ${allowedAssigned} additional tasks.`); return; }
+        const scheduleList = document.getElementById('scheduleList');
+        if (!scheduleList) return;
+        const newEl = document.createElement('div');
+        newEl.className = 'task-item assigned-task';
+        newEl.textContent = el.textContent;
+        newEl.draggable = true;
+        newEl.dataset.index = el.dataset.index;
+        newEl.tabIndex = 0;
+        newEl.onkeydown = assignedKeyDown;
+        newEl.ondragstart = dragStart;
+        newEl.ondragend = dragEnd;
+        newEl.style.opacity = 0; newEl.style.transform = 'translateY(6px)';
+        scheduleList.appendChild(newEl);
+        requestAnimationFrame(() => { newEl.style.transition = 'opacity 160ms ease, transform 160ms ease'; newEl.style.opacity = 1; newEl.style.transform = ''; });
+        el.classList.add('used');
+        renumberSchedule();
+
+        // Evaluate policies after insertion. If violations exist, mark affected items and notify (penalty applies).
+        const violations = evaluatePoliciesOnList(scheduleList, state.current);
+        applyNoncompliantMarkers(scheduleList, violations);
+        if (violations.length) {
+          showToast(`Policy update: ${violations.map(v => v.reason).join(' ')} Tasks will be penalized.`);
+        }
+        saveAssignments();
+        checkReady();
+      }
+    }
+
+    function assignedKeyDown(e) {
+      const el = e.currentTarget; if (!el) return;
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        // Attempt removal but validate policies — if removal causes violation, prevent it.
+        const scheduleList = document.getElementById('scheduleList');
+        const idx = el.dataset.index;
+        const poolTask = document.querySelector(`.pool-task[data-index='${idx}']`);
+        const originalNext = el.nextSibling;
+        const originalParent = el.parentElement;
+        // tentatively remove then evaluate policies; if violations, mark penalized tasks but allow removal
+        if (originalParent) originalParent.removeChild(el);
+        renumberSchedule();
+        const violationsAfter = evaluatePoliciesOnList(scheduleList, state.current);
+        applyNoncompliantMarkers(scheduleList, violationsAfter);
+        if (violationsAfter.length) showToast(`Policy update: ${violationsAfter.map(v => v.reason).join(' ')} Tasks will be penalized.`);
+        if (poolTask) poolTask.classList.remove('used');
+        saveAssignments(); checkReady();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault(); const prev = el.previousElementSibling; if (prev) {
+          el.parentElement.insertBefore(el, prev);
+          renumberSchedule();
+          const violations = evaluatePoliciesOnList(el.parentElement, state.current);
+          applyNoncompliantMarkers(el.parentElement, violations);
+          if (violations.length) showToast(`Policy update: ${violations.map(v => v.reason).join(' ')} Tasks will be penalized.`);
+          saveAssignments();
+        }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault(); const next = el.nextElementSibling; if (next) {
+          el.parentElement.insertBefore(next, el);
+          renumberSchedule();
+          const violations2 = evaluatePoliciesOnList(el.parentElement, state.current);
+          applyNoncompliantMarkers(el.parentElement, violations2);
+          if (violations2.length) showToast(`Policy update: ${violations2.map(v => v.reason).join(' ')} Tasks will be penalized.`);
+          saveAssignments();
+        }
+      }
+    }
+
+    function listDragOver(e) {
+      e.preventDefault(); e.dataTransfer.dropEffect = 'move'; const list = e.currentTarget; ensureMarker(); const children = Array.from(list.children).filter(c => !c.classList || !c.classList.contains('insertion-marker')); let insertBeforeEl = null; for (const child of children) { const rect = child.getBoundingClientRect(); const mid = rect.top + rect.height / 2; if (e.clientY < mid) { insertBeforeEl = child; break; } } clearMarker(); if (insertBeforeEl) list.insertBefore(insertionMarker, insertBeforeEl); else list.appendChild(insertionMarker);
+    }
+
+    function listDragLeave(e) { clearMarker(); }
+
+    function listDrop(e) {
+      e.preventDefault();
+      const list = e.currentTarget;
+      if (!dragged) { clearMarker(); return; }
+      const assignedCount = document.querySelectorAll('.assigned-task').length;
+      const baselineCount = (state.current && state.current.baseline) ? state.current.baseline.length : 0;
+      const allowedAssigned = Math.max(0, MAX_TASKS - baselineCount);
+      if (dragSource === 'pool' && assignedCount >= allowedAssigned) { showToast(`You may only assign up to ${allowedAssigned} additional tasks.`); dragEnd(); return; }
+      const marker = insertionMarker && insertionMarker.parentElement === list ? insertionMarker : null;
+      if (dragSource === 'pool') {
+        const newEl = document.createElement('div'); newEl.className = 'task-item assigned-task'; newEl.textContent = dragged.textContent; newEl.draggable = true; newEl.dataset.index = dragged.dataset.index; newEl.tabIndex = 0; newEl.onkeydown = assignedKeyDown; newEl.ondragstart = dragStart; newEl.ondragend = dragEnd; newEl.style.opacity = 0; newEl.style.transform = 'translateY(6px)';
+        if (marker) list.insertBefore(newEl, marker); else list.appendChild(newEl);
+        requestAnimationFrame(() => { newEl.style.transition = 'opacity 160ms ease, transform 160ms ease'; newEl.style.opacity = 1; newEl.style.transform = ''; });
+        dragged.classList.add('used');
+        renumberSchedule();
+
+        // Evaluate policies; mark penalized tasks and notify (do NOT revert).
+        const violations = evaluatePoliciesOnList(list, state.current);
+        applyNoncompliantMarkers(list, violations);
+        if (violations.length) showToast(`Policy update: ${violations.map(v => v.reason).join(' ')} Tasks will be penalized.`);
+        saveAssignments();
+      } else if (dragSource === 'assigned') {
+        // for reordering an assigned item, keep reference to original position so we can revert
+        if (marker && marker.nextSibling === dragged) { dragEnd(); return; }
+        const originalParent = dragged.parentElement;
+        const originalNext = dragged.nextSibling === insertionMarker ? insertionMarker.nextSibling : dragged.nextSibling;
+        if (marker) list.insertBefore(dragged, marker); else list.appendChild(dragged);
+        renumberSchedule();
+        const violations = evaluatePoliciesOnList(list, state.current);
+        applyNoncompliantMarkers(list, violations);
+        if (violations.length) { showToast(`Policy update: ${violations.map(v => v.reason).join(' ')} Tasks will be penalized.`); }
+      }
+      clearMarker();
+      checkReady();
+      saveAssignments();
+    }
+
+    function dropToPool(e) {
+      e.preventDefault();
+      const pool = e.currentTarget;
+      if (!dragged) return;
+      if (dragged.classList.contains('assigned-task')) {
+        const scheduleList = document.getElementById('scheduleList');
+        const idx = dragged.dataset.index;
+        const poolTask = document.querySelector(`.pool-task[data-index='${idx}']`);
+        const originalParent = dragged.parentElement;
+        const originalNext = dragged.nextSibling;
+        // remove and then evaluate policies; mark penalized tasks (do not revert)
+        if (dragged.parentElement) dragged.parentElement.removeChild(dragged);
+        renumberSchedule();
+        const violationsAfter = evaluatePoliciesOnList(scheduleList, state.current);
+        applyNoncompliantMarkers(scheduleList, violationsAfter);
+        if (violationsAfter.length) showToast(`Policy update: ${violationsAfter.map(v => v.reason).join(' ')} Tasks will be penalized.`);
+        if (poolTask) poolTask.classList.remove('used');
+        checkReady();
+        saveAssignments();
+      }
+      dragEnd();
+    }
+
+    let toastTimer = null;
+    function showToast(msg, ms = 1800) { const t = document.getElementById('toast'); if (!t) return; t.textContent = msg; t.classList.add('active'); if (toastTimer) clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.classList.remove('active'); toastTimer = null; }, ms); }
+
+    function checkReady() {
+      const assigned = document.querySelectorAll('.assigned-task').length;
+      const baselineCount = (state.current && state.current.baseline) ? state.current.baseline.length : 0;
+      const allowedAssigned = Math.max(0, MAX_TASKS - baselineCount);
+      document.getElementById('submitBtn').disabled = assigned < allowedAssigned;
+    }
+
+    function saveAssignments() { if (!state.current) return; const assignedEls = Array.from(document.querySelectorAll('.assigned-task')); const arr = assignedEls.map(el => el.dataset.index); state.assignments[state.current.id] = arr; if (localStorage.getItem('rememberAssignments') === 'true') { try { localStorage.setItem('assignments', JSON.stringify(state.assignments)); } catch (e) { } } }
+
+    function loadAssignments() { try { const raw = localStorage.getItem('assignments'); if (raw) state.assignments = JSON.parse(raw); } catch (e) { state.assignments = {}; } }
+
+    function markPoolUsed() { const d = state.current; if (!d) return; document.querySelectorAll('.pool-task').forEach(t => t.classList.remove('used')); const arr = state.assignments[d.id] || []; arr.forEach(idx => { const poolTask = document.querySelector(`.pool-task[data-index='${idx}']`); if (poolTask) poolTask.classList.add('used'); }); }
+
+    document.getElementById('submitBtn').onclick = () => {
+      if (!state.current) return;
+      const scheduleList = document.getElementById('scheduleList');
+      // Evaluate policies for the current schedule and visually mark penalized tasks
+      const violations = evaluatePoliciesOnList(scheduleList, state.current);
+      applyNoncompliantMarkers(scheduleList, violations);
+      if (violations.length) showToast(`Policy update: ${violations.map(v => v.reason).join(' ')} Tasks will be penalized.`);
+
+      saveAssignments();
+      const d = state.current;
+
+      // Compute misery using the DOM order so position-based penalties apply correctly.
+      const allItems = Array.from(scheduleList.children).filter(c => c.classList && (c.classList.contains('baseline') || c.classList.contains('assigned-task')));
+      const penaltyMap = buildPenaltyMap(scheduleList, violations); // pos -> multiplier (e.g., 0.5)
+      let misery = 0;
+      allItems.forEach((it, pos) => {
+        if (!it.classList.contains('assigned-task')) return;
+        const optIdx = Number(it.dataset.index);
+        if (isNaN(optIdx)) return;
+        const base = (d.misery[optIdx] || 0);
+        const mult = penaltyMap.has(pos) ? penaltyMap.get(pos) : 1;
+        misery += Math.round(base * mult);
+      });
+
+      const avg = Math.round((misery / 30) * 100);
+      // persist final computed misery for this demon so penalties remain applied in totals
+      state.finalScores[d.id] = misery;
+      state.locked[d.id] = true;
+      document.querySelectorAll('.demon-item').forEach(el => { if (el.innerText.includes(d.name)) el.classList.add('locked'); });
+      const lockedCount = Object.values(state.locked).filter(Boolean).length;
+      if (lockedCount < demons.length) {
+        showModal(`${d.name}'s Shift Report`, `Misery Index: ${misery} / 30<br>Efficiency: ${avg}%<br><br>${lockedCount} of ${demons.length} schedules submitted. Continue scheduling remaining demons.`);
+        return;
+      }
+
+      // totalMisery: use stored finalScores for submitted demons (with penalties), otherwise use base misery
+      let totalMisery = 0;
+      demons.forEach(dd => {
+        if (state.finalScores && state.finalScores[dd.id] != null) {
+          totalMisery += state.finalScores[dd.id];
+        } else {
+          const arr = state.assignments[dd.id] || [];
+          arr.forEach(idx => { totalMisery += (dd.misery[Number(idx)] || 0); });
+        }
+      });
+      const totalMax = demons.length * 30; const totalPct = Math.round((totalMisery / totalMax) * 100);
+      try { window._advanceToShift3 = false; } catch (e) { }
+      showModal(`Shift Complete — Total Misery`, `Total Misery: ${totalMisery} / ${totalMax}<br>Overall Efficiency: ${totalPct}%<br><br>Report filed to Central Torment Division.`);
+    };
+
+    function showModal(title, body) { document.getElementById('modalTitle').innerHTML = title; document.getElementById('modalBody').innerHTML = body; document.getElementById('modal').classList.add('active'); }
+    function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+    function showWelcomeModal() { document.getElementById('welcomeModal').classList.add('active'); }
+    function closeWelcomeModal() { const cb = document.getElementById('hideWelcomeCheckbox'); if (cb && cb.checked) localStorage.setItem('hideWelcome', 'true'); document.getElementById('welcomeModal').classList.remove('active'); }
+    init();
+
+    /* -------------------- Email app simulation (copied from work.html) -------------------- */
+    const sampleEmails = [
+      { id: 1, from: 'Central Torment', subject: 'Mandatory Training: Soul Filing', preview: 'New regulation requires every demon to complete online training by Friday.', body: 'All demons must complete the new mandatory training. Failure to comply will result in additional paperwork and bureaucratic reassignment.', time: '9:12 AM', unread: true },
+      { id: 2, from: 'HR Dept.', subject: 'PTO Request Denied', preview: 'Your request for time off during the eclipse has been denied.', body: 'After review, the PTO request was denied due to operational needs during the eclipse week.', time: 'Yesterday', unread: false },
+      { id: 3, from: 'IT Support', subject: 'Wi-Fi Maintenance', preview: 'We will be performing maintenance tonight at 11pm. Expect downtime up to 30 minutes.', body: 'Routine maintenance scheduled. Please save your work.', time: '2 days ago', unread: false },
+      { id: 4, from: 'Facilities', subject: 'Coffee Machine Outage (again)', preview: 'The infernal espresso conduit is currently clogged with brimstone.', body: 'Facilities reports the espresso conduit is clogged. Please refrain from attempting to praise the machine — it is not sentient (yet). ETA repair: tomorrow.', time: '3 hours ago', unread: false },
+      { id: 5, from: 'Payroll', subject: 'Payroll Adjustment: Soul Deduction', preview: 'There was an adjustment to payroll this period affecting souls and benefits.', body: 'An automated deduction affected several soul-based benefits. If your essence balance seems low, file a ticket. Do not contact the auditor directly.', time: 'Yesterday', unread: false }
+    ];
+
+    function renderEmailInbox() {
+      const list = document.getElementById('emailList'); list.innerHTML = '';
+      sampleEmails.forEach(e => { const item = document.createElement('div'); item.className = 'email-item' + (e.unread ? ' unread' : '') + (e.id === selectedEmailId ? ' selected' : ''); item.tabIndex = 0; item.dataset.id = e.id; item.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;\"><div><div style='font-weight:700'>${e.from}</div><div style='font-size:13px;color:#d1c0f8'>${e.subject}</div><div style='font-size:12px;color:#9ca3af'>${e.preview}</div></div><div style='font-size:12px;color:#9ca3af'>${e.time}</div></div>`; item.onclick = () => openEmail(e.id); item.onkeydown = (ev) => { if (ev.key === 'Enter') openEmail(e.id); }; list.appendChild(item); });
+      const preview = document.getElementById('emailPreview'); if (selectedEmailId) { const e = sampleEmails.find(s => s.id === selectedEmailId); if (e) { document.getElementById('previewHeader').textContent = `${e.subject} — ${e.from}`; document.getElementById('previewBody').textContent = e.body; } } else { document.getElementById('previewHeader').textContent = 'No message selected'; document.getElementById('previewBody').textContent = 'Choose a message from the list to view the full content.'; } updateUnreadBadge();
+    }
+
+    let selectedEmailId = null;
+    function openEmail(id) { const e = sampleEmails.find(x => x.id === id); if (!e) return; e.unread = false; selectedEmailId = id; document.getElementById('previewHeader').textContent = `${e.subject} — ${e.from}`; document.getElementById('previewBody').textContent = e.body; renderEmailInbox(); }
+
+    function updateUnreadBadge() { const count = sampleEmails.reduce((acc, m) => acc + (m.unread ? 1 : 0), 0); const badge = document.getElementById('unreadBadge'); if (!badge) return; if (count > 0) { badge.style.display = 'inline-block'; badge.textContent = count; badge.setAttribute('aria-label', `${count} unread messages`); } else { badge.style.display = 'none'; } const icon = document.getElementById('emailIcon'); if (icon) icon.title = `Open Mail (${count} unread)`; }
+
+    (function setupDragResize() {
+      const panel = document.getElementById('emailInbox'); const header = panel.querySelector('.email-inbox-header'); const handle = document.getElementById('resizeHandle'); let drag = null; let resize = null; try { const saved = JSON.parse(localStorage.getItem('emailPanelPrefs') || '{}'); if (saved.left != null) { panel.style.left = saved.left; panel.style.top = saved.top; panel.style.right = 'auto'; panel.style.bottom = 'auto'; } if (saved.width) panel.style.width = saved.width; if (saved.height) panel.style.height = saved.height; } catch (e) { } function startDrag(e) { if (e.button === 2) return; const rect = panel.getBoundingClientRect(); const clientX = (e.touches ? e.touches[0].clientX : e.clientX); const clientY = (e.touches ? e.touches[0].clientY : e.clientY); drag = { startX: clientX, startY: clientY, startLeft: rect.left, startTop: rect.top }; panel.style.left = rect.left + 'px'; panel.style.top = rect.top + 'px'; panel.style.right = 'auto'; panel.style.bottom = 'auto'; document.addEventListener('mousemove', onDrag); document.addEventListener('touchmove', onDrag, { passive: false }); document.addEventListener('mouseup', endDrag); document.addEventListener('touchend', endDrag); }
+      function onDrag(e) { if (!drag) return; const clientX = (e.touches ? e.touches[0].clientX : e.clientX); const clientY = (e.touches ? e.touches[0].clientY : e.clientY); const dx = clientX - drag.startX; const dy = clientY - drag.startY; panel.style.left = Math.max(8, drag.startLeft + dx) + 'px'; panel.style.top = Math.max(8, drag.startTop + dy) + 'px'; e.preventDefault && e.preventDefault(); }
+      function endDrag() { if (!drag) return; drag = null; document.removeEventListener('mousemove', onDrag); document.removeEventListener('touchmove', onDrag); document.removeEventListener('mouseup', endDrag); document.removeEventListener('touchend', endDrag); try { localStorage.setItem('emailPanelPrefs', JSON.stringify(Object.assign(JSON.parse(localStorage.getItem('emailPanelPrefs') || '{}'), { left: panel.style.left, top: panel.style.top }))); } catch (e) { } }
+      function startResize(e) { const rect = panel.getBoundingClientRect(); const clientX = (e.touches ? e.touches[0].clientX : e.clientX); const clientY = (e.touches ? e.touches[0].clientY : e.clientY); resize = { startX: clientX, startY: clientY, startW: rect.width, startH: rect.height }; document.addEventListener('mousemove', onResize); document.addEventListener('touchmove', onResize, { passive: false }); document.addEventListener('mouseup', endResize); document.addEventListener('touchend', endResize); e.preventDefault && e.preventDefault(); }
+      function onResize(e) { if (!resize) return; const clientX = (e.touches ? e.touches[0].clientX : e.clientX); const clientY = (e.touches ? e.touches[0].clientY : e.clientY); const dx = clientX - resize.startX; const dy = clientY - resize.startY; const newW = Math.max(360, resize.startW + dx); const newH = Math.max(260, resize.startH + dy); panel.style.width = newW + 'px'; panel.style.height = newH + 'px'; e.preventDefault && e.preventDefault(); }
+      function endResize() { if (!resize) return; resize = null; document.removeEventListener('mousemove', onResize); document.removeEventListener('touchmove', onResize); document.removeEventListener('mouseup', endResize); document.removeEventListener('touchend', endResize); try { const prefs = JSON.parse(localStorage.getItem('emailPanelPrefs') || '{}'); prefs.width = panel.style.width; prefs.height = panel.style.height; localStorage.setItem('emailPanelPrefs', JSON.stringify(prefs)); } catch (e) { } }
+      header.addEventListener('mousedown', startDrag); header.addEventListener('touchstart', startDrag, { passive: false }); handle.addEventListener('mousedown', startResize); handle.addEventListener('touchstart', startResize, { passive: false });
+    })();
+
+    (function setupIncoming() { const senders = ['Central Torment', 'HR Dept.', 'IT Support', 'Payroll', 'Facilities', 'Cafeteria', 'Onboarding', 'Security', 'Vendor Relations', 'Scheduling']; const subjects = ['All-hands: Departmental Purge', 'Expense Report: Your pen is on fire', 'Mandatory Etiquette Training: Torture Techniques', 'Coffee Machine Outage', 'Re: Re: Re: TPS Forms', 'Payroll Adjustment: Soul Deduction', 'Fire Safety Drill — Definitely Not a Drill', 'Visitor Parking Allocation for Lesser Demons', 'Interdepartmental Memo: Stop Summoning Pets', 'Reminder: Annual Branding of Souls due Friday', 'Meeting Invite: Discussing the Heat Map', 'Security Alert: Portal left unlocked', 'Onboarding: New Minion Paperwork']; const previews = ['Please review and comply by end of week.', 'This affects your department — action required.', 'Short notice maintenance; expect brief outages.', 'You are scheduled for a mandatory in-person retraining.', 'FYI — payroll looked strange this morning.']; const bodies = ['Please see attached ritual and complete steps 1–7. Failure to complete will generate additional paperwork.', 'Facilities notes a small blaze near the break room. Do not attempt to extinguish with holy water.', 'Payroll discovered an unexpected soul deduction. If you believe this is an error, file ITAR (Infernal Tax Appeals Request).', 'We will be holding a workshop on proper whistleblowing procedures next Thursday. Snacks provided (sacrificial).', 'Reminder: Do not leave summoning circles unattended. HR will not cover stray familiars.']; let nextId = Math.max(0, ...sampleEmails.map(e => e.id)) + 1; function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; } function makeMessage() { const from = rand(senders); const subject = rand(subjects); const preview = `${subject} — ${rand(previews)}`; const body = `${subject}\n\n${rand(bodies)}\n\nRegards,\n${from}`; return { id: nextId++, from, subject, preview, body, time: 'Just now', unread: true }; } function showNotify(text) { const n = document.getElementById('mailNotify'); if (!n) return; n.innerHTML = text; n.classList.add('show'); n.setAttribute('aria-hidden', 'false'); setTimeout(() => { n.classList.remove('show'); n.setAttribute('aria-hidden', 'true'); }, 4800); } function incomingMessageSimulation() { const m = makeMessage(); sampleEmails.unshift(m); if (sampleEmails.length > 80) sampleEmails.length = 80; updateUnreadBadge(); renderEmailInbox(); const badge = document.getElementById('unreadBadge'); if (badge) { badge.classList.remove('pulse'); void badge.offsetWidth; badge.classList.add('pulse'); } showNotify(`<strong>${m.from}</strong><div style="font-size:13px;color:#dcd0f8">${m.subject}</div>`); } setTimeout(function scheduleNext() { incomingMessageSimulation(); const next = 30000 + Math.random() * 60000; setTimeout(scheduleNext, next); }, 20000 + Math.random() * 20000); })();
+
+    function toggleEmailInbox(show) { const panel = document.getElementById('emailInbox'); if (!panel) return; const isActive = panel.getAttribute('aria-hidden') === 'false'; const shouldOpen = typeof show === 'boolean' ? show : !isActive; if (shouldOpen) { panel.style.display = 'flex'; panel.setAttribute('aria-hidden', 'false'); if (!selectedEmailId) { const firstUnread = sampleEmails.find(m => m.unread); selectedEmailId = firstUnread ? firstUnread.id : (sampleEmails.length ? sampleEmails[0].id : null); } renderEmailInbox(); } else { panel.style.display = 'none'; panel.setAttribute('aria-hidden', 'true'); } }
+
+    document.getElementById('emailIcon').addEventListener('click', () => toggleEmailInbox(true));
+    document.getElementById('closeEmail').addEventListener('click', () => toggleEmailInbox(false));
+    document.getElementById('composeBtn').addEventListener('click', () => showToast('Compose not implemented in this demo'));
+    updateUnreadBadge();
+
+  </script>
+
+  <script>
+    // Policy updates for Shift 2 — persisted and keeps items visible after acknowledgement
+    const POLICY_KEY = 'shift2Policies';
+    const DEFAULT_POLICIES = [
+      {
+        id: 'p1',
+        title: 'Policy 1: Meetings First (URGENT)',
+        detail: 'All additional tasks should be assigned after mandatory meetings. Place meeting items before any additional tasks.',
+        acknowledged: false,
+        rules: [
+          { type: 'meetings_before_additional', penalty: 0.5 }
+        ]
+      },
+      {
+        id: 'p2',
+        title: 'Policy 2: IT Training Requirement',
+        detail: 'IT demons must be assigned an HR or customer-service training task during their schedule.',
+        acknowledged: false,
+        rules: [
+          { type: 'require_training_for_dept', dept: 'IT', keywords: ['hr', 'human resources', 'customer service'], penalty: 0.5 }
+        ]
+      }
+    ];
+
+    let policies = [];
+
+    function loadPolicies() {
+      try {
+        const raw = localStorage.getItem(POLICY_KEY);
+        if (raw) {
+          const stored = JSON.parse(raw) || [];
+          // Merge stored acknowledged flags into DEFAULT_POLICIES so new policy texts appear
+          const storedMap = {};
+          stored.forEach(p => { if (p && p.id) storedMap[p.id] = p; });
+          policies = DEFAULT_POLICIES.map(dp => {
+            const s = storedMap[dp.id];
+            if (s) {
+              // preserve acknowledged flag from stored, but otherwise use default definition
+              return Object.assign({}, dp, { acknowledged: !!s.acknowledged });
+            }
+            return JSON.parse(JSON.stringify(dp));
+          });
+          // Append any stored policies that aren't in defaults (preserve historic ones)
+          stored.forEach(p => { if (p && p.id && !policies.find(x => x.id === p.id)) policies.push(p); });
+          savePolicies();
+        } else {
+          policies = JSON.parse(JSON.stringify(DEFAULT_POLICIES));
+          savePolicies();
+        }
+      } catch (e) {
+        policies = JSON.parse(JSON.stringify(DEFAULT_POLICIES));
+        savePolicies();
+      }
+    }
+
+    function savePolicies() {
+      try { localStorage.setItem(POLICY_KEY, JSON.stringify(policies)); } catch (e) { }
+    }
+
+    function renderPolicies() {
+      const list = document.getElementById('policyList');
+      if (!list) return;
+      list.innerHTML = '';
+      policies.forEach(p => {
+        const el = document.createElement('div');
+        el.className = 'policy-item' + (p.acknowledged ? ' acknowledged' : '');
+        el.dataset.id = p.id;
+        el.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+            <div style="flex:1">
+              <div style="font-weight:700;margin-bottom:6px">${p.title}</div>
+              <div style="color:#ffe8ea;font-size:13px">${p.detail}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+              ${p.acknowledged ? '<div style="color:#ffdede;font-size:12px">Acknowledged</div>' : '<button class="ack-btn" data-id="' + p.id + '">Acknowledge</button>'}
+            </div>
+          </div>`;
+        list.appendChild(el);
+      });
+
+      // attach handlers to per-policy acknowledge buttons
+      Array.from(document.querySelectorAll('.ack-btn')).forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.currentTarget.dataset.id;
+          acknowledgePolicy(id);
+        });
+      });
+    }
+
+    function acknowledgePolicy(id) {
+      const p = policies.find(x => x.id === id);
+      if (!p) return;
+      p.acknowledged = true;
+      savePolicies();
+      renderPolicies();
+      showToast('Policy acknowledged');
+    }
+
+    document.getElementById('ackAllBtn').addEventListener('click', () => {
+      policies.forEach(p => p.acknowledged = true);
+      savePolicies();
+      renderPolicies();
+      showToast('All policy updates acknowledged');
+    });
+
+    // load and render initial policies
+    loadPolicies();
+    renderPolicies();
+  </script>
 </body>
 
 </html>
