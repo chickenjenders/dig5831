@@ -273,6 +273,25 @@
       transform: translateX(-50%) translateY(0);
       pointer-events: auto;
     }
+
+    /* Profile card shown above the schedule when a demon is selected */
+    .profile-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(139, 92, 246, 0.08);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+      color: #e7def8;
+      text-align: center;
+    }
+
+    .profile-item {
+      background: rgba(139, 92, 246, 0.06);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #f3e9ff;
+    }
   </style>
 </head>
 
@@ -326,11 +345,12 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
-    const demons = [
-      { id: 'gerald', name: 'Gerald Finch', dept: 'IT', baseline: ['Answer “Why is the internet slow?” emails', 'Attend standup meeting', 'Update wiki nobody reads', 'Clean up legacy code', 'Review bug tickets'], optional: ['Fix “the thing” (no details)', 'Install printer driver v666', 'Debug code without comments', 'Reset Janet’s password again', 'Attend meeting about meetings', 'Deploy on Friday 4:59PM'], misery: [9, 7, 10, 8, 9, 10] },
-      { id: 'cheryl', name: 'Cheryl Stone', dept: 'Sales', baseline: ['Cold call 50 uninterested clients', 'Update CRM', 'Host pointless morale meeting', 'Pretend to care about quotas', 'Reply-all with “Great job!”'], optional: ['Data entry in silence', 'Work from home (camera off)', 'Lunch alone', 'Reorganize files', 'Send 200 cold emails', 'Fake laughter training'], misery: [10, 9, 8, 7, 6, 10] },
-      { id: 'marcus', name: 'Marcus Webb', dept: 'HR', baseline: ['Smile at complaint', 'Enforce unfair policy', 'Deny PTO request', 'Send “friendly reminder” email', 'Attend culture meeting'], optional: ['Fire someone on birthday', 'Cancel therapy dog program', 'Handle argument', 'Announce pay cuts', 'Reject complaint form', 'Plan diversity seminar'], misery: [10, 9, 8, 9, 10, 7] }
+   const demons = [
+      { id: 'gerald', name: 'Gerald Finch', dept: 'IT', baseline: ['Answer IT ticket emails', 'Attend standup meeting', 'Update the new updates article nobody reads', 'Clean up legacy code', 'Review bug tickets'], optional: ['Attend to 12 tickets for demons needing assistance restarting their computer', 'Unplug and replug HR department’s printers (27)', 'Review code project merge requests with no comments', 'Complete mandatory internet safety training', 'Write a 10-page report on why the Wi-Fi crashed last week', 'Train an intern to close tabs (there are 187 open)'], misery: [9, 7, 10, 8, 7, 10], causeOfDeath: 'Fell asleep at the wheel after working 3 days consecutively', sentence: 'Sold soul for middle management position', bloodType: 'A+', mbti: 'ISTJ', astro: 'Virgo', aspects: ['Low patience', 'Arrogant', 'Hates ambiguity'] },
+      { id: 'cheryl', name: 'Cheryl Stone', dept: 'Sales', baseline: ['Strategy meeting with team', 'Answer emails', 'Review recent contracts', 'Follow up on potential clients', 'Organize new client leads'], optional: ['Data entry in silence', 'Reorganize files alphabetically', 'Complete Manipulation training until reaching a perfect score', 'Solo shift at the crossroads', 'Shadow the new hire’s first soul deal', 'Present quarterly projections to an empty conference room for “practice.”'], misery: [10, 8, 6, 10, 4, 10], causeOfDeath: 'Old age', sentence: 'Sold soul in exchange for ex-husband’s fortune', bloodType: 'O-', mbti: 'ENFP', astro: 'Leo', aspects: ['Charismatic', 'People-pleaser', 'Hates to be alone'] },
+      { id: 'marcus', name: 'Marcus Webb', dept: 'HR', baseline: ['Review incoming applicants', 'Conduct second stage interviews', 'Deny PTO requests', 'Complete mandatory customer service training', 'Respond to all emails'], optional: ['Announce new decaf policy in the break room', 'Hold handling meeting for coworkers causing disruption during work', 'Update 200 outdated policies that no one reads', 'Organize a grief circle for demons demoted to Floor 404', 'Address all complaints from the complaint box by assuming who made the complaints', 'Prepare 100 laminated “Teamwork is Eternal” posters'], misery: [10, 10, 6, 8, 10, 5], causeOfDeath: 'Got in between violent argument of two coworkers', sentence: 'Contributed nothing to society', bloodType: 'B+', mbti: 'INFJ', astro: 'Capricorn', aspects: ['Overly formal', 'Rule-oriented', 'Hates conflict and confrontation'] }
     ];
+
 
     let state = { current: null, assignments: {}, locked: {} };
 
@@ -357,9 +377,25 @@
 
     function renderSchedule() {
       const d = state.current; const area = document.getElementById('scheduleArea');
+      // Build a small profile card with helpful context for the player
+      const profileHtml = `
+        <div class="profile-card">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+            <div class="profile-item"><strong>Cause of death:</strong> ${d.causeOfDeath}</div>
+            <div class="profile-item"><strong>Sentence:</strong> ${d.sentence}</div>
+            <div class="profile-item"><strong>Blood type:</strong> ${d.bloodType}</div>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
+            <div class="profile-item"><strong>MBTI:</strong> ${d.mbti}</div>
+            <div class="profile-item"><strong>Astro:</strong> ${d.astro}</div>
+            <div class="profile-item"><strong>Aspects:</strong> ${d.aspects.join(', ')}</div>
+          </div>
+        </div>`;
+
       // Render baseline tasks once as a vertical list. Players may drop optional tasks
       // from the pool between any two items; up to 3 optional tasks may be assigned.
       area.innerHTML = `<h2 style='color:#c084fc;text-align:center;'>${d.name} — ${d.dept}</h2>
+      ${profileHtml}
       <div class='task-list-vertical' id='scheduleList'>
         ${d.baseline.map((t, i) => `<div class='task-item baseline' data-baseline-index='${i}'>${t}</div>`).join('')}
       </div>
