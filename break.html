@@ -378,34 +378,48 @@
     const coworkers = {
       Francine: {
         img: 'francine.png',
-        dialogue: [
-          { text: 'Survival is a slow form of surrender. I recommend speed.', choices: ['What do you suggest?', 'I like surrendering…', 'Leave Conversation'] },
-          { text: 'Promotion isn’t about success. It’s about visibility.', choices: ['Visibility?', 'Sounds exhausting', 'Leave Conversation'] }
-        ]
+        nodes: {
+          start: {
+            id: 'start',
+            text: 'Survival is a slow form of surrender. I recommend speed.',
+            choices: [
+              { text: 'What do you suggest?', next: 'suggest' },
+              { text: 'I like surrendering…', next: 'surrender' },
+              { text: 'Leave Conversation', next: null }
+            ]
+          },
+          suggest: { id: 'suggest', text: 'Move faster. Use shortcuts.', choices: [{ text: 'Thanks', next: null }, { text: 'Tell me more', next: 'tellmore' }] },
+          surrender: { id: 'surrender', text: 'Then embrace it — but not here.', choices: [{ text: 'End', next: null }] },
+          tellmore: { id: 'tellmore', text: 'There are systems within systems.', choices: [{ text: 'Huh', next: null }] }
+        }
       },
       Cecil: {
         img: 'cecil.png',
-        dialogue: [
-          { text: 'Keep your head down. Floor 404 is always watching.', choices: ['Who’s on 404?', 'You’re paranoid', 'Leave Conversation'] },
-          { text: 'I used to ask questions too. Now I just sign forms.', choices: ['That’s bleak', 'Good advice', 'Leave Conversation'] }
-        ]
+        nodes: {
+          start: {
+            id: 'start',
+            text: 'Keep your head down. Floor 404 is always watching.',
+            choices: [{ text: 'Who’s on 404?', next: 'who404' }, { text: 'You’re paranoid', next: null }, { text: 'Leave Conversation', next: null }]
+          },
+          who404: { id: 'who404', text: 'People who don’t follow the protocol. Quiet ones.', choices: [{ text: 'Interesting', next: null }] }
+        }
       },
       Raquel: {
         img: 'raquel.png',
-        dialogue: [
-          { text: 'I heard The Cleanse is coming. Only the most loyal survive.', choices: ['The Cleanse?', 'I’ll pass', 'Leave Conversation'] },
-          { text: 'I’m close to promotion. Just need to sacrifice sleep forever.', choices: ['Maybe nap anyway', 'Ambition is eternal', 'Leave Conversation'] }
-        ]
+        nodes: {
+          start: { id: 'start', text: 'I heard The Cleanse is coming. Only the most loyal survive.', choices: [{ text: 'The Cleanse?', next: 'cleanse' }, { text: 'I’ll pass', next: null }, { text: 'Leave Conversation', next: null }] },
+          cleanse: { id: 'cleanse', text: 'Rumors. But rumors move people.', choices: [{ text: 'Thanks for the heads up', next: null }] }
+        }
       },
       Jeffrey: {
         img: 'jeffrey.png',
-        dialogue: [
-          { text: 'I stopped caring about strikes. They can’t erase me.', choices: ['That’s bold', 'You’re insane', 'Leave Conversation'] },
-          { text: 'Wanna take some of my quota? I’ll owe you.', choices: ['Deal', 'No thanks', 'Leave Conversation'] }
-        ]
+        nodes: {
+          start: { id: 'start', text: 'I stopped caring about strikes. They can’t erase me.', choices: [{ text: 'That’s bold', next: null }, { text: 'You’re insane', next: null }, { text: 'Leave Conversation', next: null }] }
+        }
       }
     };
 
+    // UI references
     let timer = 180;
     const timeText = document.getElementById('timeText');
     const fill = document.getElementById('timerFill');
@@ -418,6 +432,7 @@
     const choicesEl = document.getElementById('choices');
     const dim = document.getElementById('dim');
 
+    // Timer
     setInterval(() => {
       timer--;
       if (timer <= 0) { endBreak(); }
@@ -432,15 +447,24 @@
       popup.style.display = 'block';
     }
 
+    // hotspots
     document.querySelectorAll('.hotspot').forEach(h => {
       h.addEventListener('click', () => {
         startDialogue(h.dataset.name, h.dataset.side);
       });
     });
 
+    // Dialogue state
+    let currentCharacter = null;
+    let currentNodeId = null;
+
     function startDialogue(name, side) {
       const coworker = coworkers[name];
       if (!coworker) return;
+      currentCharacter = name;
+      currentNodeId = 'start';
+
+      // show portrait
       charArea.classList.remove('left', 'right', 'show');
       charArea.style.display = 'block';
       charArea.querySelector('img').src = coworker.img;
@@ -449,29 +473,35 @@
 
       dialogue.style.display = 'block';
       dim.style.display = 'block';
-      let idx = 0;
-      nextLine();
 
-      function nextLine() {
-        const line = coworker.dialogue[idx];
-        if (!line) { endConversation(); return; }
-        nameEl.textContent = name;
-        typeText(line.text, () => renderChoices(line.choices));
-      }
+      renderCurrentNode();
+    }
 
-      function renderChoices(arr) {
-        choicesEl.innerHTML = '';
-        arr.forEach(c => {
-          const btn = document.createElement('div');
-          btn.className = 'choice';
-          btn.textContent = c;
-          btn.onclick = () => {
-            if (c.includes('Leave')) endConversation();
-            else { idx++; nextLine(); }
-          };
-          choicesEl.appendChild(btn);
-        });
-      }
+    function renderCurrentNode() {
+      const data = coworkers[currentCharacter];
+      if (!data) return endConversation();
+      const node = data.nodes && data.nodes[currentNodeId];
+      if (!node) return endConversation();
+
+      nameEl.textContent = currentCharacter;
+      typeText(node.text, () => renderChoices(node.choices || []));
+    }
+
+    function renderChoices(arr) {
+      choicesEl.innerHTML = '';
+      arr.forEach(choice => {
+        const btn = document.createElement('div');
+        btn.className = 'choice';
+        btn.textContent = choice.text;
+        btn.onclick = () => {
+          if (choice.next == null) { endConversation(); }
+          else {
+            currentNodeId = choice.next;
+            renderCurrentNode();
+          }
+        };
+        choicesEl.appendChild(btn);
+      });
     }
 
     function typeText(str, done) {
@@ -486,6 +516,8 @@
     function endConversation() {
       dialogue.style.display = 'none';
       dim.style.display = 'none';
+      currentCharacter = null;
+      currentNodeId = null;
       // Slide out
       charArea.classList.remove('show');
       setTimeout(() => { charArea.style.display = 'none'; }, 500);
